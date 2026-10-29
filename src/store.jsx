@@ -1,14 +1,17 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 const Ctx = createContext(null)
 export const useStore = () => useContext(Ctx)
 
-const load = (k, d) => {
-  try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d }
-}
-const usePersist = (k, d) => {
-  const [v, setV] = useState(() => load(k, d))
-  useEffect(() => localStorage.setItem(k, JSON.stringify(v)), [k, v])
+// Данные из localStorage читаются ПОСЛЕ гидрации — иначе HTML с сервера и первый рендер не совпадут
+function usePersist(key, initial) {
+  const [v, setV] = useState(initial)
+  const loaded = useRef(false)
+  useEffect(() => {
+    try { const s = JSON.parse(localStorage.getItem(key)); if (s !== null) setV(s) } catch { /* пусто */ }
+    loaded.current = true
+  }, [key])
+  useEffect(() => { if (loaded.current) localStorage.setItem(key, JSON.stringify(v)) }, [key, v])
   return [v, setV]
 }
 
@@ -18,13 +21,14 @@ export function StoreProvider({ children }) {
   const [user, setUser] = usePersist('hv-user', null)
   const [orders, setOrders] = usePersist('hv-orders', [])
   const [panel, setPanel] = useState(null) // 'cart' | 'fav' | 'profile' | 'menu'
+  const [checkout, setCheckout] = useState(false)
 
   const api = useMemo(() => {
     const key = (id, w) => `${id}|${w}`
     const add = (p, v) => setItems((s) => {
       const k = key(p.id, v.w)
       return s.some((i) => i.key === k) ? s.map((i) => (i.key === k ? { ...i, qty: i.qty + 1 } : i))
-        : [...s, { key: k, id: p.id, line: p.line, name: p.name, img: p.img, w: v.w, price: v.price, qty: 1 }]
+        : [...s, { key: k, id: p.id, line: p.line, name: p.name, w: v.w, price: v.price, qty: 1 }]
     })
     const setQty = (k, q) => setItems((s) => (q <= 0 ? s.filter((i) => i.key !== k) : s.map((i) => (i.key === k ? { ...i, qty: q } : i))))
     const qtyOf = (id, w) => items.find((i) => i.key === key(id, w))?.qty || 0
@@ -38,13 +42,13 @@ export function StoreProvider({ children }) {
       setItems([])
       return o
     }
-    return { items, add, setQty, qtyOf, count, total, fav, toggleFav, user, setUser, orders, placeOrder, panel, setPanel }
-  }, [items, fav, user, orders, panel])
+    return { items, add, setQty, qtyOf, count, total, fav, toggleFav, user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout }
+  }, [items, fav, user, orders, panel, checkout])
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>
 }
 
-export const rub = (n) => n.toLocaleString('ru-RU') + ' ₽'
+export const rub = (n) => n.toLocaleString('ru-RU').replace(/\u00a0|\u202f/g, ' ') + ' ₽'
 
 export const fmtPhone = (raw) => {
   let d = raw.replace(/\D/g, '')

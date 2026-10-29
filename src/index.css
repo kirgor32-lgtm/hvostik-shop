@@ -50,17 +50,17 @@
 
 :root {
     --background: oklch(1 0 0);
-    --foreground: #000000;
+    --foreground: #2e2c38;
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    --card-foreground: #2e2c38;
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: #000000;
+    --popover-foreground: #2e2c38;
+    --primary: #2e2c38;
     --primary-foreground: #ffffff;
     --secondary: #f4f4f4;
     --secondary-foreground: oklch(0.205 0 0);
     --muted: #f4f4f4;
-    --muted-foreground: #666666;
+    --muted-foreground: #66636f;
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
@@ -133,20 +133,21 @@
 }
 /* ---- «Хвостик»: токены в духе крупного зоомагазина ---- */
 @theme {
-  --color-ink: #000000;
+  --color-ink: #2e2c38;
+  --color-ink-2: #45424f;
   --color-gray-1: #f4f4f4;
   --color-gray-2: #e8ecf0;
   --color-gray-3: #d8d8d8;
-  --color-txt-2: #666666;
+  --color-txt-2: #66636f;
   --color-sun: #ffd62e;
   --color-sun-soft: #fff4c2;
   --color-violet: #8f82ff;
-  --color-violet-dark: #6c5cfc;
+  --color-violet-dark: #5242d6;
   --color-violet-soft: #eeebff;
   --color-tang: #ff6a00;
   --color-myau: #f7c6d0;
   --color-gav: #d9455f;
-  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 12px rgba(46, 44, 56, 0.07);
 }
 html { scroll-behavior: smooth; }
 body { -webkit-font-smoothing: antialiased; }
