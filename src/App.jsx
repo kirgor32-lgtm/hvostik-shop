@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Search, ShoppingBag, Heart, User, MapPin, Menu, X, Minus, Plus, ChevronRight, Phone, Clock, LogOut, Package,
-  Drumstick, Scale, HeartPulse, ShieldCheck, Factory, BadgeCheck, Check, Trash2, Loader2, Send, Truck,
+  Drumstick, Scale, HeartPulse, ShieldCheck, Factory, BadgeCheck, Check, Trash2, Loader2, Send, Truck, Sparkles, PawPrint, Cookie,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,14 +14,15 @@ import { cn } from '@/lib/utils'
 import { StoreProvider, useStore, rub, fmtPhone } from './store'
 import { RouterProvider, useRoute, Link } from './router'
 import {
-  BASE, contacts, seller, products, kinds, searchHints, benefits, stats, special, checks, posts, contactTopics, faq, pages,
-  productPath, minPrice, img, declaration, manufacturer,
+  BASE, contacts, seller, products, kinds, searchHints, benefits, stats, checks, posts, contactTopics, faq, pages,
+  productPath, minPrice, img, declaration, manufacturer, minAll,
 } from './data'
 
 const icons = { Drumstick, Scale, HeartPulse, ShieldCheck, Factory, BadgeCheck }
-const inkBtn = 'h-11 rounded-[10px] bg-ink px-5 text-sm font-semibold lowercase text-white hover:bg-ink-2'
+const inkBtn = 'h-11 rounded-[10px] bg-ink px-5 text-sm font-semibold text-white hover:bg-ink-2'
 const ALL = { kind: 'all', age: 'all', q: '' }
 const byId = (id) => products.find((p) => p.id === id)
+const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1)
 const kg = (w) => parseFloat(w.replace(',', '.')) / (w.includes('кг') ? 1 : 1000)
 const perKg = (v) => Math.round(v.price / kg(v.w))
 const IMG = { width: 240, height: 528 } // размеры фото упаковок (против сдвига вёрстки)
@@ -56,12 +57,13 @@ function Shell() {
   }
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">к содержимому</a>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">К содержимому</a>
       <Header filter={filter} nav={nav} />
       <main id="main">{page}</main>
       <Footer nav={nav} />
       <Panels nav={nav} />
       <Messengers />
+      <CookieBanner />
     </>
   )
 }
@@ -88,8 +90,8 @@ function MessengerButtons({ className }) {
   const c = 'flex h-11 items-center gap-2 rounded-[10px] bg-white px-4 text-sm font-semibold shadow-card hover:bg-gray-1'
   return (
     <div className={cn('flex flex-wrap gap-2', className)}>
-      <a href={contacts.telegram} target="_blank" rel="noopener nofollow" className={c}><TgIcon className="size-5" /> написать в telegram</a>
-      <a href={contacts.max} target="_blank" rel="noopener nofollow" className={c}><MaxIcon className="size-5" /> написать в max</a>
+      <a href={contacts.telegram} target="_blank" rel="noopener nofollow" className={c}><TgIcon className="size-5" /> Написать в Telegram</a>
+      <a href={contacts.max} target="_blank" rel="noopener nofollow" className={c}><MaxIcon className="size-5" /> Написать в Max</a>
     </div>
   )
 }
@@ -99,20 +101,20 @@ function Logo({ light, onClick }) {
   return (
     <Link to="" onClick={onClick} className="flex shrink-0 items-center gap-2.5" aria-label="Хвостик — на главную">
       <img src={`${BASE}favicon.svg`} alt="" width="44" height="44" className="size-10 sm:size-11" />
-      <span className={cn('text-[22px] font-extrabold lowercase leading-none tracking-tight', light && 'text-white')}>хвостик</span>
+      <span className={cn('text-[22px] font-extrabold leading-none tracking-tight', light && 'text-white')}>Хвостик</span>
     </Link>
   )
 }
 
 /* ---------------- шапка ---------------- */
 const mainNav = [
-  ['кошкам', kinds.cat.path],
-  ['собакам', kinds.dog.path],
-  ['доставка и оплата', pages.delivery.path],
-  ['о бренде', pages.about.path],
-  ['блог', pages.blog.path],
-  ['вопросы', pages.faq.path],
-  ['контакты', pages.contacts.path],
+  ['Кошкам', kinds.cat.path],
+  ['Собакам', kinds.dog.path],
+  ['Доставка и оплата', pages.delivery.path],
+  ['О бренде', pages.about.path],
+  ['Блог', pages.blog.path],
+  ['Вопросы', pages.faq.path],
+  ['Контакты', pages.contacts.path],
 ]
 
 function Header({ filter, nav }) {
@@ -123,9 +125,6 @@ function Header({ filter, nav }) {
         {/* бургер — только на телефонах и планшетах */}
         <button className="-ml-2 flex size-11 items-center justify-center lg:hidden" onClick={() => st.setPanel('menu')} aria-label="Открыть меню"><Menu /></button>
         <Logo />
-        <Link to={pages.delivery.path} className="hidden items-center gap-2 rounded-[10px] bg-gray-1 px-4 py-2.5 text-sm md:flex">
-          <MapPin className="size-4 text-violet-dark" /> <span className="text-txt-2">доставка:</span> Санкт-Петербург
-        </Link>
         <div className="hidden flex-1 lg:block"><SearchBox filter={filter} nav={nav} /></div>
         <div className="ml-auto flex items-center gap-0.5 lg:ml-0">
           <a href={contacts.phoneHref} className="mr-3 hidden text-right xl:block">
@@ -139,7 +138,7 @@ function Header({ filter, nav }) {
       </div>
       <div className="wrap pb-3 lg:hidden"><SearchBox filter={filter} nav={nav} /></div>
       {/* меню разделов — только на компьютере */}
-      <nav aria-label="Разделы" className="wrap hidden gap-8 pb-3 text-[15px] lowercase lg:flex">
+      <nav aria-label="Разделы" className="wrap hidden gap-8 pb-3 text-[15px] lg:flex">
         {mainNav.map(([l, to]) => <Link key={to} to={to} className="hover:text-violet-dark">{l}</Link>)}
       </nav>
     </header>
@@ -149,7 +148,8 @@ function Header({ filter, nav }) {
 const matches = (p, f) => {
   const q = (f.q || '').trim().toLowerCase()
   const hay = `${p.line} ${p.name} ${p.taste} ${p.ageLabel} ${p.weights.map((w) => w.w).join(' ')}`.toLowerCase()
-  return (!f.kind || f.kind === 'all' || p.kind === f.kind) && (!f.age || f.age === 'all' || p.age === f.age) && (!q || q.split(/\s+/).every((w) => hay.includes(w)))
+  const age = !f.age || f.age === 'all' || (f.age === 'kitten' ? p.kind === 'cat' && p.age === 'young' : f.age === 'puppy' ? p.kind === 'dog' && p.age === 'young' : p.age === f.age)
+  return (!f.kind || f.kind === 'all' || p.kind === f.kind) && age && (!q || q.split(/\s+/).every((w) => hay.includes(w)))
 }
 
 function SearchBox({ filter, nav }) {
@@ -182,12 +182,12 @@ function SearchBox({ filter, nav }) {
         <Search className="size-5 shrink-0 text-txt-2" />
         <input value={text} onChange={(e) => { setText(e.target.value); setOpen(true); setHi(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
           type="search" role="combobox" aria-expanded={open} aria-controls="search-list" aria-autocomplete="list" aria-label="Поиск корма"
-          placeholder="поиск: котята, щенки, говядина" className="w-full min-w-0 bg-transparent text-[15px] outline-none placeholder:text-txt-2 [&::-webkit-search-cancel-button]:hidden" />
+          placeholder="Поиск: котята, щенки, говядина…" className="w-full min-w-0 bg-transparent text-[15px] outline-none placeholder:text-txt-2 [&::-webkit-search-cancel-button]:hidden" />
         {text && <button type="button" onClick={() => setText('')} aria-label="Очистить"><X className="size-4 text-txt-2" /></button>}
       </label>
       {open && (
         <div id="search-list" role="listbox" className="absolute inset-x-0 top-[56px] z-50 overflow-hidden rounded-[14px] bg-white py-2 shadow-[0_12px_40px_rgba(46,44,56,.18)]">
-          {q && !found.length && <div className="px-4 py-3 text-sm text-txt-2">ничего не нашли по «{text}»</div>}
+          {q && !found.length && <div className="px-4 py-3 text-sm text-txt-2">Ничего не нашли по «{text}»</div>}
           {found.map((p, i) => (
             <button key={p.id} role="option" aria-selected={hi === i} onMouseEnter={() => setHi(i)} onClick={() => pick(options[i])}
               className={cn('flex w-full items-center gap-3 px-4 py-2 text-left', hi === i && 'bg-gray-1')}>
@@ -198,7 +198,7 @@ function SearchBox({ filter, nav }) {
           ))}
           {!!hints.length && (
             <div className="px-4 pb-2 pt-3">
-              <div className="mb-2 text-xs text-txt-2">{q ? 'уточнить запрос' : 'часто ищут'}</div>
+              <div className="mb-2 text-xs text-txt-2">{q ? 'Уточнить запрос' : 'Часто ищут'}</div>
               <div className="flex flex-wrap gap-2">
                 {hints.map((h, j) => {
                   const i = found.length + j
@@ -239,7 +239,7 @@ function IconBtn({ children, label, n, dot, onClick }) {
 function SectionTitle({ children, sub, as: H = 'h2' }) {
   return (
     <div>
-      <H className="text-[28px] font-extrabold lowercase leading-[1.05] tracking-tight md:text-[40px]">{children}</H>
+      <H className="text-balance text-[28px] font-extrabold leading-[1.05] tracking-tight md:text-[40px]">{children}</H>
       {sub && <p className="mt-3 max-w-[680px] text-[17px] text-txt-2">{sub}</p>}
     </div>
   )
@@ -249,11 +249,11 @@ function Crumbs({ items }) {
   return (
     <nav aria-label="Навигационная цепочка" className="wrap pt-5 text-sm text-txt-2">
       <ol className="flex flex-wrap items-center gap-1">
-        <li><Link to="" className="hover:text-ink">главная</Link></li>
+        <li><Link to="" className="inline-block py-1 hover:text-ink">Главная</Link></li>
         {items.map(([l, to], i) => (
           <li key={l} className="flex items-center gap-1">
             <ChevronRight className="size-3.5" />
-            {i === items.length - 1 ? <span aria-current="page" className="text-ink">{l}</span> : <Link to={to} className="hover:text-ink">{l}</Link>}
+            {i === items.length - 1 ? <span aria-current="page" className="text-ink">{l}</span> : <Link to={to} className="inline-block py-1 hover:text-ink">{l}</Link>}
           </li>
         ))}
       </ol>
@@ -267,9 +267,8 @@ function Home({ filter, setFilter, nav, topic, setTopic }) {
     <>
       <Hero nav={nav} />
       <Benefits />
-      <Catalog filter={filter} setFilter={setFilter} title="ассортимент" />
+      <Catalog filter={filter} setFilter={setFilter} title="Ассортимент" />
       <Mission />
-      <Special />
       <Checks />
       <BlogStrip />
       <Contacts topic={topic} setTopic={setTopic} />
@@ -284,14 +283,14 @@ function Hero({ nav }) {
     <section className="wrap pt-5">
       <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-r from-[#fdeef1] via-[#fbe2e7] to-[#f6d2da] px-6 py-10 md:px-14 md:py-14">
         <div className="relative z-10 max-w-[560px]">
-          <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-semibold lowercase text-ink">доставка по Санкт-Петербургу и Ленобласти</span>
+          <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">Бесплатная доставка по Санкт-Петербургу</span>
           <h1 className="mt-5 text-[34px] font-extrabold leading-[1.04] tracking-tight md:text-[54px]">Корма «Хвостик» для кошек и собак в Санкт-Петербурге</h1>
           <p className="mt-5 max-w-[470px] text-lg leading-snug md:text-xl">
-            Хвостик.МЯУ и Хвостик.ГАВ — восемь сухих рецептов: для взрослых, котят, щенков, стерилизованных кошек и мелких пород. От {rub(234)}.
+            Хвостик.МЯУ и Хвостик.ГАВ — восемь сухих рецептов: для взрослых, котят, щенков, стерилизованных кошек и мелких пород. От {minAll} ₽.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={kinds.cat.path} className={cn(inkBtn, 'flex h-[52px] items-center px-7 text-base')}>корм для кошек</Link>
-            <Link to={kinds.dog.path} className="flex h-[52px] items-center rounded-[10px] bg-white px-7 text-base font-semibold lowercase hover:bg-gray-1">корм для собак</Link>
+            <Link to={kinds.cat.path} className={cn(inkBtn, 'flex h-[52px] items-center px-7 text-base')}>Корм для кошек</Link>
+            <Link to={kinds.dog.path} className="flex h-[52px] items-center rounded-[10px] bg-white px-7 text-base font-semibold hover:bg-gray-1">Корм для собак</Link>
           </div>
         </div>
         <div className="pointer-events-none mt-8 flex items-end justify-center md:absolute md:bottom-6 md:right-12 md:mt-0">
@@ -302,13 +301,19 @@ function Hero({ nav }) {
       </div>
       <div className="no-scrollbar mt-3 grid grid-flow-col gap-3 overflow-x-auto md:grid-cols-4">
         {[
-          ['бесплатная доставка', 'по СПб от 2 000 ₽', 'bg-violet-dark text-white', pages.delivery.path],
-          ['подбор корма', 'по возрасту и весу', 'bg-gray-1', null, 'pick'],
-          ['заводчикам', 'фасовки до 15 кг', 'bg-ink text-white', null, 'breeders'],
-          ['напишите нам', 'telegram и max', 'bg-[#f6dfe6]', pages.contacts.path],
-        ].map(([a, b, c, to, t]) => {
-          const inner = <><span><span className="block text-[15px] font-semibold lowercase">{a}</span><span className="text-sm">{b}</span></span><ChevronRight className="size-5" /></>
-          const cls = cn('flex min-w-[220px] items-center justify-between rounded-[14px] px-5 py-4 text-left transition hover:opacity-90', c)
+          ['Бесплатная доставка', 'до пунктов 5Post', Truck, pages.delivery.path],
+          ['Подбор корма', 'по возрасту и весу', Sparkles, null, 'pick'],
+          ['Заводчикам', 'фасовки до 15 кг', PawPrint, null, 'breeders'],
+          ['Напишите нам', 'в Telegram и Max', Send, pages.contacts.path],
+        ].map(([a, b, I, to, t]) => {
+          const inner = (
+            <>
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-violet-dark"><I className="size-5" /></span>
+              <span className="flex-1"><span className="block text-[15px] font-semibold">{a}</span><span className="text-sm text-txt-2">{b}</span></span>
+              <ChevronRight className="size-5 text-txt-2" />
+            </>
+          )
+          const cls = 'flex min-w-[240px] items-center gap-3 rounded-[14px] bg-gray-1 px-4 py-4 text-left transition-colors hover:bg-gray-2'
           return to ? <Link key={a} to={to} className={cls}>{inner}</Link> : <button key={a} onClick={() => nav.contact(t)} className={cls}>{inner}</button>
         })}
       </div>
@@ -319,7 +324,7 @@ function Hero({ nav }) {
 function Benefits() {
   return (
     <section className="wrap py-16">
-      <SectionTitle>почему «хвостик»</SectionTitle>
+      <SectionTitle>Почему «Хвостик»</SectionTitle>
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {benefits.map((b) => {
           const I = icons[b.icon]
@@ -334,25 +339,27 @@ function Benefits() {
           )
         })}
       </div>
-      <p className="mt-4 text-xs text-txt-2">По данным производителя — Саратовского кормового завода.</p>
     </section>
   )
 }
 
 function Catalog({ filter, setFilter, title, fixedKind, as }) {
   const list = useMemo(() => products.filter((p) => matches(p, { ...filter, kind: fixedKind || filter.kind })), [filter, fixedKind])
-  const ages = fixedKind === 'cat' ? 'котятам' : fixedKind === 'dog' ? 'щенкам' : 'котятам и щенкам'
+  const kind = fixedKind || filter.kind
+  // «котятам» и «щенкам» — отдельные кнопки; показываем только подходящие к выбранному виду
+  const ages = [['all', 'Любой возраст'], ['adult', 'Взрослым'], ...(kind !== 'dog' ? [['kitten', 'Котятам']] : []), ...(kind !== 'cat' ? [['puppy', 'Щенкам']] : [])]
+  const setKind = (v) => setFilter((f) => ({ ...f, kind: v, age: (v === 'cat' && f.age === 'puppy') || (v === 'dog' && f.age === 'kitten') ? 'all' : f.age }))
   return (
     <section id="catalog" className="scroll-mt-44 bg-gray-1 py-14">
       <div className="wrap">
         {title && <SectionTitle as={as}>{title}</SectionTitle>}
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-          {!fixedKind && <Pills label="Для кого" value={filter.kind} onChange={(v) => setFilter((f) => ({ ...f, kind: v }))} items={[['all', 'все корма'], ['cat', 'кошкам'], ['dog', 'собакам']]} />}
-          <Pills label="Возраст" small value={filter.age} onChange={(v) => setFilter((f) => ({ ...f, age: v }))} items={[['all', 'любой возраст'], ['adult', 'взрослым'], ['young', ages]]} />
+          {!fixedKind && <Pills label="Для кого" value={filter.kind} onChange={setKind} items={[['all', 'Все корма'], ['cat', 'Кошкам'], ['dog', 'Собакам']]} />}
+          <Pills label="Возраст" small value={filter.age} onChange={(v) => setFilter((f) => ({ ...f, age: v }))} items={ages} />
         </div>
         {filter.q && (
           <p className="mt-4 text-[15px]">
-            по запросу «{filter.q}»: найдено {list.length}{' '}
+            По запросу «{filter.q}»: найдено {list.length}{' '}
             <button className="text-violet-dark underline" onClick={() => setFilter((f) => ({ ...f, q: '' }))}>сбросить</button>
           </p>
         )}
@@ -360,11 +367,11 @@ function Catalog({ filter, setFilter, title, fixedKind, as }) {
           {list.map((p) => <ProductCard key={p.id} p={p} />)}
           {!list.length && (
             <div className="col-span-2 rounded-[16px] bg-white p-8 text-txt-2">
-              ничего не нашли. <button className="text-violet-dark underline" onClick={() => setFilter(ALL)}>показать все корма</button>
+              Ничего не нашли. <button className="text-violet-dark underline" onClick={() => setFilter(ALL)}>показать все корма</button>
             </div>
           )}
         </div>
-        <p className="mt-6 text-xs text-txt-2">Цены указаны в рублях с НДС — рекомендованные розничные цены. Доставка по Санкт-Петербургу бесплатно от 2 000 ₽.</p>
+        <p className="mt-6 text-xs text-txt-2">Цены указаны в рублях с НДС. Доставка до пунктов выдачи 5Post в Санкт-Петербурге — бесплатно.</p>
       </div>
     </section>
   )
@@ -376,7 +383,7 @@ function Pills({ label, items, value, onChange, small }) {
     <div role="group" aria-label={label} className="flex flex-wrap gap-2">
       {items.map(([v, l]) => (
         <button key={v} aria-pressed={value === v} onClick={() => onChange(v)}
-          className={cn('rounded-full lowercase transition', small ? 'h-9 px-4 text-sm' : 'h-10 px-5 text-[15px]',
+          className={cn('rounded-full transition-colors', small ? 'h-9 px-4 text-sm' : 'h-10 px-5 text-[15px]',
             value === v ? (small ? 'bg-violet-dark text-white' : 'bg-ink text-white') : 'bg-white text-ink hover:bg-gray-2')}>{l}</button>
       ))}
     </div>
@@ -395,7 +402,7 @@ function ProductCard({ p }) {
         <Link to={productPath(p)} className="flex h-full w-full items-center justify-center p-3 sm:p-4" tabIndex={-1} aria-hidden>
           <img src={img(p.id)} {...IMG} loading="lazy" alt={`${p.line} — ${p.short}, ${p.taste}`} className="h-full w-auto object-contain transition hover:scale-105" />
         </Link>
-        <span className="absolute left-2 top-2 rounded-[8px] bg-white/90 px-2 py-1 text-xs font-bold lowercase sm:left-3 sm:top-3">{p.kind === 'cat' ? 'кошкам' : 'собакам'}</span>
+        <span className="absolute left-2 top-2 rounded-[8px] bg-white/90 px-2 py-1 text-xs font-bold sm:left-3 sm:top-3">{p.kind === 'cat' ? 'Кошкам' : 'Собакам'}</span>
         <FavBtn faved={faved} onClick={() => st.toggleFav(p.id)} />
       </div>
       <div className="mt-3 flex flex-wrap items-baseline gap-x-2">
@@ -426,7 +433,7 @@ function Buy({ p, v, qty, big }) {
       <button className="flex size-11 items-center justify-center" onClick={() => st.setQty(`${p.id}|${v.w}`, qty + 1)} aria-label="Больше"><Plus className="size-4" /></button>
     </div>
   ) : (
-    <Button onClick={() => st.add(p, v)} className={cn(inkBtn, 'w-full gap-2', big && 'h-[52px] text-base')}><ShoppingBag className="size-4" /> в корзину</Button>
+    <Button onClick={() => st.add(p, v)} className={cn(inkBtn, 'w-full gap-2', big && 'h-[52px] text-base')}><ShoppingBag className="size-4" /> В корзину</Button>
   )
 }
 
@@ -444,12 +451,12 @@ function Mission() {
     <section className="wrap py-16">
       <div className="grid overflow-hidden rounded-[20px] bg-ink text-white md:grid-cols-[1.2fr_1fr]">
         <div className="p-8 md:p-14">
-          <span className="text-sm lowercase text-[#c9c2ff]">наша миссия</span>
+          <span className="text-sm lowercase text-[#c9c2ff]">Наша миссия</span>
           <h2 className="mt-4 text-[28px] font-extrabold leading-[1.08] md:text-[42px]">Радовать каждого хвостатого — от первой гранулы до пустой миски</h2>
           <p className="mt-6 max-w-[520px] text-lg text-white/80">
             Корм, который не просто насыщает, а помогает питомцу жить здоровой и активной жизнью. Полнорационные рецепты с натуральным мясом от российского завода.
           </p>
-          <Link to={pages.about.path} className="mt-6 inline-flex items-center gap-1 font-semibold text-[#c9c2ff] hover:text-white">о бренде и производителе <ChevronRight className="size-4" /></Link>
+          <Link to={pages.about.path} className="mt-6 inline-flex items-center gap-1 font-semibold text-[#c9c2ff] hover:text-white">О бренде и производителе <ChevronRight className="size-4" /></Link>
         </div>
         <div className="flex min-h-[260px] items-center justify-center bg-violet-dark">
           <div className="grid grid-cols-2 gap-3 p-8 text-center">
@@ -466,37 +473,11 @@ function Mission() {
   )
 }
 
-function Special() {
-  return (
-    <section className="wrap pb-16">
-      <SectionTitle sub="Отдельные рецепты для кошек после стерилизации и для маленьких собак.">особый подход к особым питомцам</SectionTitle>
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {special.map((s) => {
-          const p = byId(s.id)
-          return (
-            <div key={s.id} className={cn('flex gap-4 overflow-hidden rounded-[20px] p-6 md:p-8', p.bg)}>
-              <div className="flex-1">
-                <span className="text-sm font-bold">{p.line}</span>
-                <h3 className="mt-2 text-2xl font-extrabold leading-tight">{s.title}</h3>
-                <ul className="mt-5 space-y-2.5">
-                  {s.points.map((x) => <li key={x} className="flex gap-2 text-[15px]"><Check className="mt-0.5 size-4 shrink-0 text-violet-dark" />{x}</li>)}
-                </ul>
-                <Link to={productPath(p)} className="mt-6 inline-flex items-center gap-1 font-semibold text-violet-dark">от {rub(minPrice(p))} — к товару <ChevronRight className="size-4" /></Link>
-              </div>
-              <img src={img(p.id)} {...IMG} loading="lazy" alt="" className="h-auto w-[34%] max-w-[170px] self-end object-contain drop-shadow-lg" />
-            </div>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
 function Checks() {
   return (
     <section className="bg-gray-1 py-16">
       <div className="wrap">
-        <SectionTitle>как проверяют корм</SectionTitle>
+        <SectionTitle>Как проверяют корм</SectionTitle>
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {checks.map((c) => (
             <div key={c.n} className="rounded-[16px] bg-white p-6">
@@ -527,16 +508,24 @@ function PostCard({ p, H = 'h3' }) {
   )
 }
 
+// Кнопка «Все статьи»: пока ведёт на страницу блога, когда появится канал в Дзене — укажите contacts.dzen
+function AllPosts({ className }) {
+  const cls = cn('inline-flex h-11 shrink-0 items-center gap-1 rounded-[10px] bg-gray-1 px-5 text-sm font-semibold transition-colors hover:bg-gray-2', className)
+  const inner = <>Все статьи <ChevronRight className="size-4" /></>
+  return contacts.dzen ? <a href={contacts.dzen} target="_blank" rel="noopener" className={cls}>{inner}</a> : <Link to={pages.blog.path} className={cls}>{inner}</Link>
+}
+
 function BlogStrip() {
   return (
     <section className="wrap py-16">
       <div className="flex items-end justify-between gap-4">
-        <SectionTitle>блог о питании</SectionTitle>
-        <Link to={pages.blog.path} className="hidden shrink-0 items-center gap-1 font-semibold text-violet-dark sm:flex">все статьи <ChevronRight className="size-4" /></Link>
+        <SectionTitle>Блог о питании</SectionTitle>
+        <AllPosts className="hidden sm:inline-flex" />
       </div>
       <div className="no-scrollbar mt-8 grid grid-flow-col gap-4 overflow-x-auto pb-2 lg:grid-flow-row lg:grid-cols-4">
         {posts.map((p) => <PostCard key={p.slug} p={p} />)}
       </div>
+      <AllPosts className="mt-4 w-full justify-center sm:hidden" />
     </section>
   )
 }
@@ -547,7 +536,7 @@ function Consent({ checked, onChange, err }) {
     <label className="flex items-start gap-2.5 text-xs text-txt-2">
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(!!v)} className="mt-0.5 data-[state=checked]:border-ink data-[state=checked]:bg-ink" />
       <span>
-        даю <Link to={pages.consent.path} className="underline hover:text-ink">согласие на обработку персональных данных</Link> и принимаю{' '}
+        Даю <Link to={pages.consent.path} className="underline hover:text-ink">согласие на обработку персональных данных</Link> и принимаю{' '}
         <Link to={pages.privacy.path} className="underline hover:text-ink">политику конфиденциальности</Link>
         {err && <b className="text-destructive"> — {err}</b>}
       </span>
@@ -555,7 +544,7 @@ function Consent({ checked, onChange, err }) {
   )
 }
 
-function LeadForm({ topic, compact, onSubmit, cta = 'отправить', doneText }) {
+function LeadForm({ topic, compact, onSubmit, cta = 'Отправить', doneText }) {
   const st = useStore()
   // галочка согласия НЕ стоит заранее — согласие должно быть активным действием (152-ФЗ)
   const [f, setF] = useState({ name: st.user?.name || '', phone: st.user?.phone || '', msg: '', ok: false })
@@ -564,8 +553,8 @@ function LeadForm({ topic, compact, onSubmit, cta = 'отправить', doneTe
   const submit = (e) => {
     e.preventDefault()
     const er = {}
-    if (f.name.trim().length < 2) er.name = 'введите имя'
-    if (f.phone.replace(/\D/g, '').length !== 11) er.phone = 'введите телефон полностью'
+    if (f.name.trim().length < 2) er.name = 'Введите имя'
+    if (f.phone.replace(/\D/g, '').length !== 11) er.phone = 'Введите телефон полностью'
     if (!f.ok) er.ok = 'нужно согласие'
     setErr(er)
     if (Object.keys(er).length) return
@@ -576,17 +565,17 @@ function LeadForm({ topic, compact, onSubmit, cta = 'отправить', doneTe
     return (
       <div className="rounded-[16px] bg-white p-8 text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-violet-dark text-white"><Check className="size-7" /></div>
-        <h3 className="mt-4 text-2xl font-extrabold">спасибо, {f.name.trim()}!</h3>
+        <h3 className="mt-4 text-2xl font-extrabold">Спасибо, {f.name.trim()}!</h3>
         <p className="mt-2 text-txt-2">{doneText || 'Менеджер свяжется с вами в ближайшее время.'} Это демо — заявка никуда не ушла.</p>
       </div>
     )
   return (
     <form onSubmit={submit} noValidate className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field err={err.name} label="Имя"><Input autoComplete="name" placeholder="имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} aria-invalid={!!err.name} className="h-12 rounded-[10px] bg-white text-[15px]" /></Field>
-        <Field err={err.phone} label="Телефон"><Input type="tel" autoComplete="tel" placeholder="телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} aria-invalid={!!err.phone} className="h-12 rounded-[10px] bg-white text-[15px]" /></Field>
+        <Field err={err.name} label="Имя"><Input autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} aria-invalid={!!err.name} className="h-12 rounded-[10px] bg-white text-[15px]" /></Field>
+        <Field err={err.phone} label="Телефон"><Input type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} aria-invalid={!!err.phone} className="h-12 rounded-[10px] bg-white text-[15px]" /></Field>
       </div>
-      {!compact && <Textarea aria-label="Сообщение" placeholder={topic === 'order' ? 'номер заказа и что случилось' : 'сообщение (необязательно)'} value={f.msg} onChange={(e) => setF({ ...f, msg: e.target.value })} className="min-h-24 rounded-[10px] bg-white text-[15px]" />}
+      {!compact && <Textarea aria-label="Сообщение" placeholder={topic === 'order' ? 'Номер заказа и что случилось' : 'Сообщение (необязательно)'} value={f.msg} onChange={(e) => setF({ ...f, msg: e.target.value })} className="min-h-24 rounded-[10px] bg-white text-[15px]" />}
       <Consent checked={f.ok} onChange={(ok) => setF({ ...f, ok })} err={err.ok} />
       <Button type="submit" disabled={state === 'send'} className={cn(inkBtn, 'h-12 w-full sm:w-auto sm:px-10')}>
         {state === 'send' ? <Loader2 className="animate-spin" /> : <><Send className="size-4" />{cta}</>}
@@ -599,22 +588,22 @@ function Field({ err, label, children }) {
   return <label className="block"><span className="sr-only">{label}</span>{children}{err && <span className="mt-1 block text-xs text-destructive">{err}</span>}</label>
 }
 
-function Contacts({ topic, setTopic, as = 'h2', title = 'связаться с нами' }) {
+function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с нами' }) {
   return (
     <section id="form" className="scroll-mt-44 bg-gray-1 py-16">
       <div className="wrap">
         <SectionTitle as={as}>{title}</SectionTitle>
         <Tabs value={topic} onValueChange={setTopic} className="mt-6 gap-6">
-          <TabsList className="no-scrollbar h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-0">
+          <TabsList className="no-scrollbar h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 group-data-horizontal/tabs:h-auto">
             {contactTopics.map((t) => (
-              <TabsTrigger key={t.id} value={t.id} className="h-10 flex-none rounded-full border-0 bg-white px-5 text-[15px] lowercase text-ink shadow-none data-[state=active]:bg-violet-dark data-[state=active]:text-white">{t.label}</TabsTrigger>
+              <TabsTrigger key={t.id} value={t.id} className="h-10 flex-none rounded-full border-0 bg-white px-5 text-[15px] text-ink shadow-none data-[state=active]:bg-violet-dark data-[state=active]:text-white">{t.label}</TabsTrigger>
             ))}
           </TabsList>
           {contactTopics.map((t) => (
             <TabsContent key={t.id} value={t.id}>
               <div className="grid gap-8 rounded-[20px] bg-white/60 p-6 md:grid-cols-[1fr_1.3fr] md:p-10">
                 <div>
-                  <h3 className="text-2xl font-extrabold lowercase">{t.label}</h3>
+                  <h3 className="text-2xl font-extrabold">{cap(t.label)}</h3>
                   <p className="mt-3 text-[17px] leading-relaxed text-txt-2">{t.text}</p>
                   <p className="mt-4 text-[15px]">Заполните форму или напишите в мессенджер — <b>ответим в течение дня</b>.</p>
                   <MessengerButtons className="mt-5" />
@@ -634,7 +623,7 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'связаться с �
 }
 
 // Вопросы — нативный <details>: ответы есть в HTML, поисковик их видит
-function FaqList({ limit, as = 'h2', title = 'частые вопросы' }) {
+function FaqList({ limit, as = 'h2', title = 'Частые вопросы' }) {
   const list = limit ? faq.slice(0, limit) : faq
   return (
     <section className="wrap py-16">
@@ -649,7 +638,7 @@ function FaqList({ limit, as = 'h2', title = 'частые вопросы' }) {
           </details>
         ))}
       </div>
-      {limit && <Link to={pages.faq.path} className="mt-5 inline-flex items-center gap-1 font-semibold text-violet-dark">все вопросы <ChevronRight className="size-4" /></Link>}
+      {limit && <Link to={pages.faq.path} className="mt-5 inline-flex items-center gap-1 font-semibold text-violet-dark">Все вопросы <ChevronRight className="size-4" /></Link>}
     </section>
   )
 }
@@ -661,8 +650,7 @@ function SeoText() {
         <h2 className="mb-3 text-xl font-bold text-ink">Купить корм «Хвостик» в Санкт-Петербурге</h2>
         <p>
           В нашем магазине — вся линейка сухих кормов «Хвостик» от Саратовского кормового завода: четыре рецепта Хвостик.МЯУ для кошек и четыре рецепта Хвостик.ГАВ для собак.
-          Корма для кошек продаются в пакетах 400 г, 1,5 кг и 10 кг, для собак — 2 кг, 10 кг и 15 кг. Привезём заказ по Санкт-Петербургу на следующий день, в города Ленинградской области у КАД — за 1–2 дня.
-          При заказе от 2 000 ₽ доставка бесплатная.
+          Корма для кошек продаются в пакетах 1,5 кг и 10 кг, для собак — 2 кг, 10 кг и 15 кг. Доставка бесплатная: привезём заказ в пункт выдачи 5Post в Санкт-Петербурге — постамат или кассу «Пятёрочки» и «Перекрёстка».
         </p>
       </div>
     </section>
@@ -681,9 +669,9 @@ function KindPage({ kind }) {
         <h1 className="text-[30px] font-extrabold leading-tight tracking-tight md:text-[44px]">{k.h1}</h1>
         <p className="mt-3 max-w-[760px] text-[17px] text-txt-2">{k.intro}</p>
       </div>
-      <Catalog filter={filter} setFilter={setFilter} fixedKind={kind} title={`все рецепты ${kinds[kind].h1.split(' ').pop()}`} />
+      <Catalog filter={filter} setFilter={setFilter} fixedKind={kind} title={`Все рецепты ${kinds[kind].h1.split(' ').pop()}`} />
       <section className="wrap py-14">
-        <h2 className="text-2xl font-extrabold lowercase">другие корма</h2>
+        <h2 className="text-2xl font-extrabold">Другие корма</h2>
         <Link to={kinds[kind === 'cat' ? 'dog' : 'cat'].path} className="mt-3 inline-flex items-center gap-1 font-semibold text-violet-dark">
           {kinds[kind === 'cat' ? 'dog' : 'cat'].h1} <ChevronRight className="size-4" />
         </Link>
@@ -701,19 +689,19 @@ function ProductPage({ p }) {
   const v = p.weights[vi]
   const related = products.filter((x) => x.kind === p.kind && x.id !== p.id)
   const specs = [
-    ['вкус', p.taste],
-    ['для кого', p.ageLabel],
-    ['тип корма', 'сухой полнорационный'],
-    ['фасовки', p.weights.map((w) => w.w).join(', ')],
-    ['штрихкод', v.gtin],
-    ['срок годности', '18 месяцев'],
-    ['производитель', manufacturer],
-    ['декларация', declaration],
-    ['маркировка', '«Честный знак»'],
+    ['Вкус', p.taste],
+    ['Для кого', p.ageLabel],
+    ['Тип корма', 'сухой полнорационный'],
+    ['Фасовки', p.weights.map((w) => w.w).join(', ')],
+    ['Штрихкод', v.gtin],
+    ['Срок годности', '18 месяцев'],
+    ['Производитель', manufacturer],
+    ['Декларация', declaration],
+    ['Маркировка', '«Честный знак»'],
   ]
   return (
     <>
-      <Crumbs items={[[k.menu, k.path], [p.short, productPath(p)]]} />
+      <Crumbs items={[[k.menu, k.path], [cap(p.short), productPath(p)]]} />
       <article className="wrap grid gap-8 pb-14 pt-5 md:grid-cols-[1fr_1.05fr] lg:gap-14">
         <div className={cn('relative flex h-[360px] items-center justify-center rounded-[20px] p-6 md:h-[520px]', p.bg)}>
           <img src={img(p.id)} {...IMG} fetchPriority="high" alt={`Упаковка ${p.line} — ${p.short}, ${p.taste}`} className="h-full w-auto object-contain drop-shadow-xl" />
@@ -723,7 +711,7 @@ function ProductPage({ p }) {
           <span className="text-sm font-bold text-violet-dark">{p.line}</span>
           <h1 className="mt-2 text-[28px] font-extrabold leading-[1.1] tracking-tight md:text-[36px]">{p.name}</h1>
           <p className="mt-4 text-[17px] leading-relaxed text-txt-2">{p.text}</p>
-          <div className="mt-6 text-sm text-txt-2">фасовка</div>
+          <div className="mt-6 text-sm text-txt-2">Фасовка</div>
           <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Фасовка">
             {p.weights.map((w, i) => (
               <button key={w.w} onClick={() => setVi(i)} aria-pressed={i === vi} className={cn('flex h-14 flex-col items-start justify-center rounded-[10px] border px-4 text-left', i === vi ? 'border-ink bg-ink text-white' : 'border-gray-3 hover:border-ink')}>
@@ -739,20 +727,20 @@ function ProductPage({ p }) {
           <div className="mt-5 max-w-[420px]"><Buy p={p} v={v} qty={st.qtyOf(p.id, v.w)} big /></div>
           <div className="mt-5 flex items-start gap-3 rounded-[14px] bg-gray-1 p-4 text-sm">
             <Truck className="mt-0.5 size-5 shrink-0 text-violet-dark" />
-            <div>Доставка по Санкт-Петербургу — на следующий день, бесплатно от 2 000 ₽. <Link to={pages.delivery.path} className="text-violet-dark underline">условия доставки</Link></div>
+            <div>Бесплатная доставка до пунктов выдачи 5Post в Санкт-Петербурге. <Link to={pages.delivery.path} className="text-violet-dark underline">Условия доставки</Link></div>
           </div>
-          <h2 className="mt-8 text-xl font-extrabold lowercase">характеристики</h2>
+          <h2 className="mt-8 text-xl font-extrabold">Характеристики</h2>
           <dl className="mt-3 grid grid-cols-[minmax(110px,auto)_1fr] gap-x-6 gap-y-2 text-[15px]">
             {specs.map(([a, b]) => <div key={a} className="contents"><dt className="text-txt-2">{a}</dt><dd>{b}</dd></div>)}
           </dl>
-          <h2 className="mt-8 text-xl font-extrabold lowercase">описание</h2>
+          <h2 className="mt-8 text-xl font-extrabold">Описание</h2>
           <p className="mt-3 text-[15px] leading-relaxed">{p.more}</p>
           <p className="mt-3 text-sm text-txt-2">Состав, гарантированный анализ и таблица суточной нормы указаны на упаковке. Свежая вода должна быть в доступе всегда.</p>
         </div>
       </article>
       <section className="bg-gray-1 py-14">
         <div className="wrap">
-          <h2 className="text-[26px] font-extrabold lowercase md:text-[32px]">другие корма {p.line}</h2>
+          <h2 className="text-[26px] font-extrabold md:text-[32px]">Другие корма {p.line}</h2>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">{related.map((x) => <ProductCard key={x.id} p={x} />)}</div>
         </div>
       </section>
@@ -764,7 +752,7 @@ function ProductPage({ p }) {
 function BlogPage() {
   return (
     <>
-      <Crumbs items={[['блог', pages.blog.path]]} />
+      <Crumbs items={[['Блог', pages.blog.path]]} />
       <section className="wrap pb-16 pt-4">
         <SectionTitle as="h1" sub={pages.blog.desc}>{pages.blog.h1}</SectionTitle>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{posts.map((p) => <PostCard key={p.slug} p={p} H="h2" />)}</div>
@@ -777,7 +765,7 @@ function PostPage({ post }) {
   const rel = post.rel.map(byId)
   return (
     <>
-      <Crumbs items={[['блог', pages.blog.path], [post.title, `blog/${post.slug}/`]]} />
+      <Crumbs items={[['Блог', pages.blog.path], [post.title, `blog/${post.slug}/`]]} />
       <article className="wrap max-w-[820px] pb-12 pt-4">
         <span className="rounded-full bg-gray-1 px-2.5 py-0.5 text-xs lowercase">{post.tag} · {post.min} мин</span>
         <h1 className="mt-4 text-[30px] font-extrabold leading-tight tracking-tight md:text-[42px]">{post.title}</h1>
@@ -786,7 +774,7 @@ function PostPage({ post }) {
       </article>
       <section className="bg-gray-1 py-14">
         <div className="wrap">
-          <h2 className="text-2xl font-extrabold lowercase">корма по теме</h2>
+          <h2 className="text-2xl font-extrabold">Корма по теме</h2>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">{rel.map((x) => <ProductCard key={x.id} p={x} />)}</div>
         </div>
       </section>
@@ -803,25 +791,25 @@ function TextPage({ id, topic, setTopic }) {
       <>
         <Crumbs items={[[pg.h1, pg.path]]} />
         <section className="wrap pb-10 pt-4">
-          <SectionTitle as="h1" sub="Магазин кормов «Хвостик» в Санкт-Петербурге. Отвечаем на вопросы о корме, заказе и доставке.">{pg.h1}</SectionTitle>
+          <SectionTitle as="h1" sub="Интернет-магазин кормов «Хвостик» в Санкт-Петербурге. Отвечаем на вопросы о корме, заказе и доставке.">{pg.h1}</SectionTitle>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <div className="rounded-[16px] bg-gray-1 p-6">
-              <div className="text-sm text-txt-2">телефон</div>
+              <div className="text-sm text-txt-2">Телефон</div>
               <a href={contacts.phoneHref} className="mt-1 block text-xl font-bold">{contacts.phone}</a>
               <div className="mt-1 text-sm text-txt-2">{contacts.hours}</div>
             </div>
             <div className="rounded-[16px] bg-gray-1 p-6">
-              <div className="text-sm text-txt-2">мессенджеры</div>
+              <div className="text-sm text-txt-2">Мессенджеры</div>
               <MessengerButtons className="mt-3" />
             </div>
             <div className="rounded-[16px] bg-gray-1 p-6">
-              <div className="text-sm text-txt-2">продавец</div>
+              <div className="text-sm text-txt-2">Продавец</div>
               <div className="mt-1 text-[15px]">{seller.name}<br />ОГРН {seller.ogrn}, ИНН {seller.inn}<br />{seller.address}</div>
               <div className="mt-2 text-sm"><a href={`mailto:${contacts.email}`} className="underline">{contacts.email}</a></div>
             </div>
           </div>
         </section>
-        <Contacts topic={topic} setTopic={setTopic} title="написать нам" />
+        <Contacts topic={topic} setTopic={setTopic} title="Написать нам" />
       </>
     )
   return (
@@ -845,11 +833,11 @@ function TextPage({ id, topic, setTopic }) {
 function NotFound() {
   return (
     <section className="wrap py-24 text-center">
-      <h1 className="text-[40px] font-extrabold">страница не найдена</h1>
+      <h1 className="text-[40px] font-extrabold">Страница не найдена</h1>
       <p className="mt-3 text-lg text-txt-2">Возможно, корм переехал на другой адрес.</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Link to={kinds.cat.path} className={cn(inkBtn, 'flex items-center')}>корм для кошек</Link>
-        <Link to={kinds.dog.path} className={cn(inkBtn, 'flex items-center')}>корм для собак</Link>
+        <Link to={kinds.cat.path} className={cn(inkBtn, 'flex items-center')}>Корм для кошек</Link>
+        <Link to={kinds.dog.path} className={cn(inkBtn, 'flex items-center')}>Корм для собак</Link>
       </div>
     </section>
   )
@@ -858,34 +846,34 @@ function NotFound() {
 /* ---------------- подвал ---------------- */
 function Footer({ nav }) {
   const cols = [
-    ['покупателям', [['доставка и оплата', pages.delivery.path], ['возврат и обмен', pages.returns.path], ['частые вопросы', pages.faq.path], ['контакты', pages.contacts.path]]],
-    ['о бренде', [['о бренде и заводе', pages.about.path], ['блог о питании', pages.blog.path], ['заводчикам', null, 'breeders'], ['оптовым покупателям', null, 'sales']]],
-    ['каталог', [['корм для кошек', kinds.cat.path], ['корм для собак', kinds.dog.path], ['корм для котят', productPath(byId('myau-kitten'))], ['корм для щенков', productPath(byId('gav-puppy'))]]],
+    ['Покупателям', [['Доставка и оплата', pages.delivery.path], ['Возврат и обмен', pages.returns.path], ['Частые вопросы', pages.faq.path], ['Контакты', pages.contacts.path]]],
+    ['О бренде', [['О бренде и заводе', pages.about.path], ['Блог о питании', pages.blog.path], ['Заводчикам', null, 'breeders'], ['Оптовым покупателям', null, 'sales']]],
+    ['Каталог', [['Корм для кошек', kinds.cat.path], ['Корм для собак', kinds.dog.path], ['Корм для котят', productPath(byId('myau-kitten'))], ['Корм для щенков', productPath(byId('gav-puppy'))]]],
   ]
   return (
     <footer className="bg-ink pb-24 pt-14 text-white md:pb-10">
       <div className="wrap grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1.4fr]">
         <div>
           <Logo light />
-          <p className="mt-4 text-sm text-white/70">Сухие корма Хвостик.МЯУ и Хвостик.ГАВ с доставкой по Санкт-Петербургу и Ленинградской области.</p>
+          <p className="mt-4 text-sm text-white/70">Сухие корма Хвостик.МЯУ и Хвостик.ГАВ с бесплатной доставкой до пунктов 5Post в Санкт-Петербурге.</p>
         </div>
         {cols.map(([h, ls]) => (
           <div key={h}>
-            <div className="mb-3 font-semibold lowercase">{h}</div>
-            <ul className="space-y-2 text-sm text-white/70">
+            <div className="mb-3 font-semibold">{h}</div>
+            <ul className="space-y-1 text-sm text-white/70">
               {ls.map(([l, to, t]) => (
-                <li key={l}>{to ? <Link to={to} className="hover:text-white">{l}</Link> : <button onClick={() => nav.contact(t)} className="text-left hover:text-white">{l}</button>}</li>
+                <li key={l}>{to ? <Link to={to} className="inline-block py-1.5 hover:text-white">{l}</Link> : <button onClick={() => nav.contact(t)} className="py-1.5 text-left hover:text-white">{l}</button>}</li>
               ))}
             </ul>
           </div>
         ))}
         <div>
-          <div className="mb-3 font-semibold lowercase">поговорим про питомцев</div>
+          <div className="mb-3 font-semibold">Поговорим про питомцев</div>
           <a href={contacts.phoneHref} className="text-2xl font-bold">{contacts.phone}</a>
           <p className="mt-1 text-sm text-white/70">{contacts.hours}</p>
           <div className="mt-4 flex gap-2">
             <a href={contacts.telegram} target="_blank" rel="noopener nofollow" aria-label="Telegram" className="rounded-[10px] bg-white/10 p-2.5 hover:bg-white/20"><TgIcon className="size-6" /></a>
-            <a href={contacts.max} target="_blank" rel="noopener nofollow" aria-label="MAX" className="rounded-[10px] bg-white/10 p-2.5 hover:bg-white/20"><MaxIcon className="size-6" /></a>
+            <a href={contacts.max} target="_blank" rel="noopener nofollow" aria-label="Max" className="rounded-[10px] bg-white/10 p-2.5 hover:bg-white/20"><MaxIcon className="size-6" /></a>
           </div>
         </div>
       </div>
@@ -896,7 +884,7 @@ function Footer({ nav }) {
           <Link to={pages.privacy.path} className="underline hover:text-white">Политика конфиденциальности</Link> ·{' '}
           <Link to={pages.consent.path} className="underline hover:text-white">Согласие на обработку данных</Link>
         </p>
-        <p>© 2026 «Хвостик», Санкт-Петербург. Демонстрационный сайт.</p>
+        <p>© 2026 «Хвостик», Санкт-Петербург. Демонстрационный сайт.{' '}<button onClick={() => window.dispatchEvent(new Event('hv-cookies'))} className="underline hover:text-white">Настройки cookie</button></p>
       </div>
     </footer>
   )
@@ -905,18 +893,59 @@ function Footer({ nav }) {
 /* ---------------- плавающие мессенджеры ---------------- */
 function Messengers() {
   const [open, setOpen] = useState(false)
+  const box = useRef(null)
+  useEffect(() => {
+    if (!open) return
+    const out = (e) => { if (!box.current?.contains(e.target)) setOpen(false) }
+    const esc = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('pointerdown', out)
+    document.addEventListener('keydown', esc)
+    return () => { document.removeEventListener('pointerdown', out); document.removeEventListener('keydown', esc) }
+  }, [open])
+  const item = 'flex items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-[0_6px_24px_rgba(46,44,56,.2)] hover:bg-gray-1'
   return (
-    <div className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-2">
+    <div ref={box} className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-2">
       {open && (
-        <div className="flex flex-col gap-2">
-          <a href={contacts.telegram} target="_blank" rel="noopener nofollow" className="flex items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-[0_6px_24px_rgba(46,44,56,.2)]"><TgIcon className="size-8" />telegram</a>
-          <a href={contacts.max} target="_blank" rel="noopener nofollow" className="flex items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-[0_6px_24px_rgba(46,44,56,.2)]"><MaxIcon className="size-8" />max</a>
+        <div className="flex flex-col items-end gap-2">
+          <a href={contacts.telegram} target="_blank" rel="noopener nofollow" onClick={() => setOpen(false)} className={item}><TgIcon className="size-8" />Telegram</a>
+          <a href={contacts.max} target="_blank" rel="noopener nofollow" onClick={() => setOpen(false)} className={item}><MaxIcon className="size-8" />Max</a>
         </div>
       )}
-      <button onClick={() => setOpen(!open)} aria-label="Написать нам" aria-expanded={open}
-        className="flex size-12 items-center justify-center gap-2 rounded-full bg-violet-dark sm:h-14 sm:w-auto sm:px-5 font-semibold lowercase text-white shadow-[0_8px_24px_rgba(108,92,252,.4)] hover:bg-[#4535c4]">
-        {open ? <X className="size-5" /> : <Send className="size-5" />}<span className="hidden sm:inline">написать нам</span>
+      <button onClick={() => setOpen(!open)} aria-label={open ? 'Закрыть' : 'Написать нам'} aria-expanded={open}
+        className="flex size-12 items-center justify-center gap-2 rounded-full bg-violet-dark font-semibold text-white shadow-[0_8px_24px_rgba(82,66,214,.4)] hover:bg-[#4535c4] sm:h-14 sm:w-auto sm:px-5">
+        {open ? <X className="size-5" /> : <Send className="size-5" />}<span className="hidden sm:inline">{open ? 'Закрыть' : 'Написать нам'}</span>
       </button>
+    </div>
+  )
+}
+
+/* ---------------- баннер cookie и персональных данных (152-ФЗ) ---------------- */
+function CookieBanner() {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    try { if (!localStorage.getItem('hv-cookies')) setShow(true) } catch { setShow(true) }
+    const reopen = () => setShow(true)
+    window.addEventListener('hv-cookies', reopen)
+    return () => window.removeEventListener('hv-cookies', reopen)
+  }, [])
+  const save = (v) => { try { localStorage.setItem('hv-cookies', JSON.stringify({ v, at: new Date().toISOString() })) } catch { /* пусто */ } setShow(false) }
+  if (!show) return null
+  return (
+    <div role="region" aria-label="Cookie и персональные данные" className="fixed inset-x-3 bottom-3 z-50 rounded-[16px] bg-white p-4 shadow-[0_12px_40px_rgba(46,44,56,.22)] sm:inset-x-auto sm:left-5 sm:bottom-5 sm:max-w-[460px]">
+      <div className="flex gap-3">
+        <Cookie className="mt-0.5 size-6 shrink-0 text-violet-dark" aria-hidden />
+        <div>
+          <div className="font-bold">Мы используем cookie</div>
+          <p className="mt-1 text-sm text-txt-2">
+            Используем cookie и обрабатываем персональные данные, чтобы работали корзина и личный кабинет. Подробнее — в{' '}
+            <Link to={pages.privacy.path} className="text-violet-dark underline">политике конфиденциальности</Link>.
+          </p>
+        </div>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Button onClick={() => save('all')} className={cn(inkBtn, 'flex-1')}>Принять</Button>
+        <Button onClick={() => save('necessary')} variant="ghost" className="h-11 flex-1 rounded-[10px] bg-gray-1 text-sm font-semibold hover:bg-gray-2">Только необходимые</Button>
+      </div>
     </div>
   )
 }
@@ -928,17 +957,17 @@ function Panels({ nav }) {
   const side = 'flex w-full flex-col gap-0 p-0 sm:max-w-[440px]'
   const head = (t, d) => (
     <SheetHeader className="border-b border-gray-2 p-5">
-      <SheetTitle className="text-2xl font-extrabold lowercase">{t}</SheetTitle>
+      <SheetTitle className="text-2xl font-extrabold">{t}</SheetTitle>
       <SheetDescription>{d}</SheetDescription>
     </SheetHeader>
   )
   const favs = products.filter((p) => st.fav.includes(p.id))
-  const toCatalog = ['в каталог', () => { close(); nav.show({}) }]
+  const toCatalog = ['В каталог', () => { close(); nav.show({}) }]
   return (
     <>
       <Sheet open={st.panel === 'cart'} onOpenChange={(o) => !o && close()}>
         <SheetContent className={side}>
-          {head('корзина', st.count ? `${st.count} шт. на ${rub(st.total)}` : 'пока пусто')}
+          {head('Корзина', st.count ? `${st.count} шт. на ${rub(st.total)}` : 'Пока пусто')}
           <div className="flex-1 space-y-3 overflow-y-auto p-5">
             {!st.items.length && <Empty icon={ShoppingBag} text="добавьте корм из каталога" action={toCatalog} />}
             {st.items.map((i) => (
@@ -961,9 +990,9 @@ function Panels({ nav }) {
           </div>
           {!!st.items.length && (
             <div className="border-t border-gray-2 p-5">
-              <div className="mb-3 rounded-[10px] bg-violet-soft px-3 py-2 text-sm">{st.total >= 2000 ? 'доставка по Санкт-Петербургу бесплатная' : `до бесплатной доставки ${rub(2000 - st.total)}`}</div>
-              <div className="mb-4 flex justify-between text-lg"><span>итого</span><b>{rub(st.total)}</b></div>
-              <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>оформить заказ</Button>
+              <div className="mb-3 flex items-center gap-2 rounded-[10px] bg-violet-soft px-3 py-2 text-sm"><Truck className="size-4 text-violet-dark" />Бесплатная доставка до пункта 5Post</div>
+              <div className="mb-4 flex justify-between text-lg"><span>Итого</span><b>{rub(st.total)}</b></div>
+              <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>Оформить заказ</Button>
             </div>
           )}
         </SheetContent>
@@ -971,7 +1000,7 @@ function Panels({ nav }) {
 
       <Sheet open={st.panel === 'fav'} onOpenChange={(o) => !o && close()}>
         <SheetContent className={side}>
-          {head('избранное', favs.length ? `${favs.length} шт.` : 'пока пусто')}
+          {head('Избранное', favs.length ? `${favs.length} шт.` : 'Пока пусто')}
           <div className="flex-1 space-y-3 overflow-y-auto p-5">
             {!favs.length && <Empty icon={Heart} text="нажмите ♡ на карточке корма, чтобы сохранить его здесь" action={toCatalog} />}
             {favs.map((p) => {
@@ -983,7 +1012,7 @@ function Panels({ nav }) {
                     <Link to={productPath(p)} onClick={close} className="text-sm leading-snug hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
                     <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                       <span className="font-bold">{rub(v.price)} <span className="text-xs font-normal text-txt-2">· {v.w}</span></span>
-                      <button onClick={() => st.add(p, v)} className="rounded-[8px] bg-ink px-3 py-1.5 text-xs font-semibold text-white">{st.qtyOf(p.id, v.w) ? `в корзине: ${st.qtyOf(p.id, v.w)}` : 'в корзину'}</button>
+                      <button onClick={() => st.add(p, v)} className="rounded-[8px] bg-ink px-3 py-1.5 text-xs font-semibold text-white">{st.qtyOf(p.id, v.w) ? `В корзине: ${st.qtyOf(p.id, v.w)}` : 'В корзину'}</button>
                     </div>
                   </div>
                   <button onClick={() => st.toggleFav(p.id)} aria-label="Убрать из избранного" className="self-start"><Heart className="size-4 fill-tang text-tang" /></button>
@@ -996,7 +1025,7 @@ function Panels({ nav }) {
 
       <Sheet open={st.panel === 'profile'} onOpenChange={(o) => !o && close()}>
         <SheetContent className={side}>
-          {head('личный кабинет', st.user ? st.user.phone : 'вход по номеру телефона')}
+          {head('Личный кабинет', st.user ? st.user.phone : 'Вход по номеру телефона')}
           <div className="flex-1 overflow-y-auto p-5">{st.user ? <Profile nav={nav} /> : <Login />}</div>
         </SheetContent>
       </Sheet>
@@ -1006,20 +1035,20 @@ function Panels({ nav }) {
         <SheetContent side="left" className="flex w-[86%] max-w-[360px] flex-col gap-0 p-0">
           <SheetHeader className="border-b border-gray-2 p-5"><SheetTitle asChild><div><Logo onClick={close} /></div></SheetTitle><SheetDescription className="sr-only">Меню сайта</SheetDescription></SheetHeader>
           <nav aria-label="Меню" className="flex-1 overflow-y-auto p-5">
-            <div className="mb-2 text-lg font-extrabold lowercase">каталог</div>
-            <MenuLink to={kinds.cat.path} onClick={close}>корм для кошек</MenuLink>
-            <MenuLink to={kinds.dog.path} onClick={close}>корм для собак</MenuLink>
-            <MenuLink to={productPath(byId('myau-kitten'))} onClick={close}>для котят</MenuLink>
-            <MenuLink to={productPath(byId('gav-puppy'))} onClick={close}>для щенков</MenuLink>
-            <MenuLink to={productPath(byId('myau-steril'))} onClick={close}>для стерилизованных кошек</MenuLink>
-            <MenuLink to={productPath(byId('gav-small'))} onClick={close}>для мелких пород собак</MenuLink>
-            <div className="mb-2 mt-5 text-lg font-extrabold lowercase">информация</div>
-            <MenuLink to={pages.delivery.path} onClick={close}>доставка и оплата</MenuLink>
-            <MenuLink to={pages.returns.path} onClick={close}>возврат и обмен</MenuLink>
-            <MenuLink to={pages.about.path} onClick={close}>о бренде</MenuLink>
-            <MenuLink to={pages.blog.path} onClick={close}>блог</MenuLink>
-            <MenuLink to={pages.faq.path} onClick={close}>частые вопросы</MenuLink>
-            <MenuLink to={pages.contacts.path} onClick={close}>контакты</MenuLink>
+            <div className="mb-2 text-lg font-extrabold">Каталог</div>
+            <MenuLink to={kinds.cat.path} onClick={close}>Корм для кошек</MenuLink>
+            <MenuLink to={kinds.dog.path} onClick={close}>Корм для собак</MenuLink>
+            <MenuLink to={productPath(byId('myau-kitten'))} onClick={close}>Для котят</MenuLink>
+            <MenuLink to={productPath(byId('gav-puppy'))} onClick={close}>Для щенков</MenuLink>
+            <MenuLink to={productPath(byId('myau-steril'))} onClick={close}>Для стерилизованных кошек</MenuLink>
+            <MenuLink to={productPath(byId('gav-small'))} onClick={close}>Для мелких пород собак</MenuLink>
+            <div className="mb-2 mt-5 text-lg font-extrabold">Информация</div>
+            <MenuLink to={pages.delivery.path} onClick={close}>Доставка и оплата</MenuLink>
+            <MenuLink to={pages.returns.path} onClick={close}>Возврат и обмен</MenuLink>
+            <MenuLink to={pages.about.path} onClick={close}>О бренде</MenuLink>
+            <MenuLink to={pages.blog.path} onClick={close}>Блог</MenuLink>
+            <MenuLink to={pages.faq.path} onClick={close}>Частые вопросы</MenuLink>
+            <MenuLink to={pages.contacts.path} onClick={close}>Контакты</MenuLink>
             <a href={contacts.phoneHref} className="mt-5 block text-xl font-bold">{contacts.phone}</a>
             <div className="text-sm text-txt-2">{contacts.hours}</div>
             <MessengerButtons className="mt-4" />
@@ -1029,9 +1058,9 @@ function Panels({ nav }) {
 
       <Dialog open={st.checkout} onOpenChange={st.setCheckout}>
         <DialogContent className="max-w-[520px] rounded-[20px] bg-gray-1 p-7">
-          <DialogTitle className="text-2xl font-extrabold lowercase">оформление заказа</DialogTitle>
-          <DialogDescription className="text-[15px] text-txt-2">{st.total ? `Сумма ${rub(st.total)}. ` : ''}Оставьте контакты — перезвоним и уточним адрес доставки по Санкт-Петербургу.</DialogDescription>
-          <LeadForm compact cta="подтвердить заказ" doneText="Заказ сохранён в личном кабинете, менеджер перезвонит." onSubmit={(c) => st.placeOrder(c)} />
+          <DialogTitle className="text-2xl font-extrabold">Оформление заказа</DialogTitle>
+          <DialogDescription className="text-[15px] text-txt-2">{st.total ? `Сумма ${rub(st.total)}. ` : ''}Оставьте контакты — перезвоним и поможем выбрать пункт выдачи 5Post. Доставка бесплатная.</DialogDescription>
+          <LeadForm compact cta="Подтвердить заказ" doneText="Заказ сохранён в личном кабинете, менеджер перезвонит." onSubmit={(c) => st.placeOrder(c)} />
         </DialogContent>
       </Dialog>
     </>
@@ -1060,12 +1089,12 @@ function Login() {
   const next = (e) => {
     e.preventDefault()
     if (step === 'phone') {
-      if (f.name.trim().length < 2) return setErr('введите имя')
-      if (f.phone.replace(/\D/g, '').length !== 11) return setErr('введите телефон полностью')
-      if (!f.ok) return setErr('нужно согласие на обработку данных')
+      if (f.name.trim().length < 2) return setErr('Введите имя')
+      if (f.phone.replace(/\D/g, '').length !== 11) return setErr('Введите телефон полностью')
+      if (!f.ok) return setErr('Нужно согласие на обработку данных')
       setErr(''); setStep('code')
     } else {
-      if (f.code.length !== 4) return setErr('введите 4 цифры')
+      if (f.code.length !== 4) return setErr('Введите 4 цифры')
       st.setUser({ name: f.name.trim(), phone: f.phone })
     }
   }
@@ -1074,19 +1103,19 @@ function Login() {
       <div className="mb-2 rounded-[14px] bg-violet-soft p-4 text-sm">Войдите, чтобы видеть свои заказы и избранное.</div>
       {step === 'phone' ? (
         <>
-          <Input aria-label="Имя" autoComplete="name" placeholder="имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="h-12 rounded-[10px] text-[15px]" />
-          <Input aria-label="Телефон" type="tel" autoComplete="tel" placeholder="телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} className="h-12 rounded-[10px] text-[15px]" />
+          <Input aria-label="Имя" autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="h-12 rounded-[10px] text-[15px]" />
+          <Input aria-label="Телефон" type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} className="h-12 rounded-[10px] text-[15px]" />
           <Consent checked={f.ok} onChange={(ok) => setF({ ...f, ok })} />
         </>
       ) : (
         <>
           <p className="text-[15px]">Код отправлен на {f.phone}. <button type="button" className="text-violet-dark underline" onClick={() => setStep('phone')}>изменить</button></p>
-          <Input aria-label="Код из смс" autoFocus placeholder="код из смс" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.replace(/\D/g, '') })} className="h-12 rounded-[10px] text-center text-xl tracking-[.5em]" />
+          <Input aria-label="Код из смс" autoFocus placeholder="Код из смс" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.replace(/\D/g, '') })} className="h-12 rounded-[10px] text-center text-xl tracking-[.5em]" />
           <p className="text-xs text-txt-2">Демо: подойдут любые 4 цифры, смс не отправляется.</p>
         </>
       )}
       {err && <p className="text-sm text-destructive">{err}</p>}
-      <Button type="submit" className={cn(inkBtn, 'h-12 w-full text-base')}>{step === 'phone' ? 'получить код' : 'войти'}</Button>
+      <Button type="submit" className={cn(inkBtn, 'h-12 w-full text-base')}>{step === 'phone' ? 'Получить код' : 'Войти'}</Button>
     </form>
   )
 }
@@ -1098,19 +1127,19 @@ function Profile({ nav }) {
       <div className="flex items-center gap-3 rounded-[14px] bg-gray-1 p-4">
         <span className="flex size-12 items-center justify-center rounded-full bg-violet-dark text-lg font-bold text-white">{st.user.name[0]?.toUpperCase()}</span>
         <div className="flex-1"><div className="font-bold">{st.user.name}</div><div className="text-sm text-txt-2">{st.user.phone}</div></div>
-        <button onClick={() => st.setUser(null)} className="flex items-center gap-1 text-sm text-txt-2 hover:text-ink"><LogOut className="size-4" />выйти</button>
+        <button onClick={() => st.setUser(null)} className="flex items-center gap-1 text-sm text-txt-2 hover:text-ink"><LogOut className="size-4" />Выйти</button>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <button onClick={() => st.setPanel('fav')} className="rounded-[14px] border border-gray-2 p-4 text-left hover:bg-gray-1"><Heart className="mb-2 size-5" /><div className="font-semibold">избранное</div><div className="text-sm text-txt-2">{st.fav.length} шт.</div></button>
-        <button onClick={() => st.setPanel('cart')} className="rounded-[14px] border border-gray-2 p-4 text-left hover:bg-gray-1"><ShoppingBag className="mb-2 size-5" /><div className="font-semibold">корзина</div><div className="text-sm text-txt-2">{st.count} шт.</div></button>
+        <button onClick={() => st.setPanel('fav')} className="rounded-[14px] border border-gray-2 p-4 text-left hover:bg-gray-1"><Heart className="mb-2 size-5" /><div className="font-semibold">Избранное</div><div className="text-sm text-txt-2">{st.fav.length} шт.</div></button>
+        <button onClick={() => st.setPanel('cart')} className="rounded-[14px] border border-gray-2 p-4 text-left hover:bg-gray-1"><ShoppingBag className="mb-2 size-5" /><div className="font-semibold">Корзина</div><div className="text-sm text-txt-2">{st.count} шт.</div></button>
       </div>
       <div>
-        <div className="mb-3 text-lg font-extrabold lowercase">мои заказы</div>
+        <div className="mb-3 text-lg font-extrabold">Мои заказы</div>
         {!st.orders.length && <p className="text-sm text-txt-2">Заказов пока нет. <button className="text-violet-dark underline" onClick={() => { st.setPanel(null); nav.show({}) }}>перейти в каталог</button></p>}
         <div className="space-y-2">
           {st.orders.map((o) => (
             <div key={o.n} className="rounded-[14px] border border-gray-2 p-4">
-              <div className="flex items-center justify-between"><span className="flex items-center gap-2 font-semibold"><Package className="size-4" />заказ №{o.n}</span><span className="rounded-full bg-violet-soft px-2 py-0.5 text-xs">принят</span></div>
+              <div className="flex items-center justify-between"><span className="flex items-center gap-2 font-semibold"><Package className="size-4" />Заказ №{o.n}</span><span className="rounded-full bg-violet-soft px-2 py-0.5 text-xs">Принят</span></div>
               <div className="mt-1 text-sm text-txt-2">{o.date} · {o.items.reduce((s, i) => s + i.qty, 0)} шт. · {rub(o.total)}</div>
               <div className="mt-2 text-xs text-txt-2">{o.items.map((i) => `${i.line} ${i.w} ×${i.qty}`).join(', ')}</div>
             </div>

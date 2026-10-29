@@ -1,23 +1,34 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { products } from './data'
 
 const Ctx = createContext(null)
 export const useStore = () => useContext(Ctx)
 
 // Данные из localStorage читаются ПОСЛЕ гидрации — иначе HTML с сервера и первый рендер не совпадут
-function usePersist(key, initial) {
+// clean — проверка сохранённых данных: убираем товары, которых больше нет, и старые цены
+function usePersist(key, initial, clean = (x) => x) {
   const [v, setV] = useState(initial)
   const loaded = useRef(false)
   useEffect(() => {
-    try { const s = JSON.parse(localStorage.getItem(key)); if (s !== null) setV(s) } catch { /* пусто */ }
+    try { const s = JSON.parse(localStorage.getItem(key)); if (s !== null) setV(clean(s)) } catch { /* пусто */ }
     loaded.current = true
   }, [key])
   useEffect(() => { if (loaded.current) localStorage.setItem(key, JSON.stringify(v)) }, [key, v])
   return [v, setV]
 }
 
+const byId = Object.fromEntries(products.map((p) => [p.id, p]))
+// В избранном — только существующие товары, без повторов (раньше там оставались id из старой версии сайта)
+const cleanFav = (f) => (Array.isArray(f) ? [...new Set(f)].filter((id) => byId[id]) : [])
+// В корзине — только существующие фасовки и с актуальной ценой
+const cleanCart = (items) => (Array.isArray(items) ? items.flatMap((i) => {
+  const v = byId[i.id]?.weights.find((w) => w.w === i.w)
+  return v && i.qty > 0 ? [{ ...i, price: v.price }] : []
+}) : [])
+
 export function StoreProvider({ children }) {
-  const [items, setItems] = usePersist('hv-cart', [])
-  const [fav, setFav] = usePersist('hv-fav', [])
+  const [items, setItems] = usePersist('hv-cart', [], cleanCart)
+  const [fav, setFav] = usePersist('hv-fav', [], cleanFav)
   const [user, setUser] = usePersist('hv-user', null)
   const [orders, setOrders] = usePersist('hv-orders', [])
   const [panel, setPanel] = useState(null) // 'cart' | 'fav' | 'profile' | 'menu'
@@ -42,7 +53,7 @@ export function StoreProvider({ children }) {
       setItems([])
       return o
     }
-    return { items, add, setQty, qtyOf, count, total, fav, toggleFav, user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout }
+    return { items, add, setQty, qtyOf, count, total, fav, favCount: fav.length, toggleFav, user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout }
   }, [items, fav, user, orders, panel, checkout])
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>

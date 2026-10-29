@@ -1,5 +1,5 @@
 // Маршруты и SEO-данные каждой страницы. Используется и при пререндере, и в браузере.
-import { SITE, BASE, products, kinds, pages, posts, faq, contacts, productPath, minPrice, img, declaration } from './data'
+import { SITE, BASE, products, kinds, pages, posts, faq, contacts, productPath, minPrice, img, declaration, minAll } from './data'
 
 const abs = (p = '') => `${SITE}/${p}`
 const cut = (t, n) => (t.length <= n ? t : t.slice(0, t.lastIndexOf(' ', n - 1)).replace(/[,.:;—-]+$/, '') + '…')
@@ -13,11 +13,24 @@ const org = {
   url: abs(),
   logo: abs('icons/icon-512.png'),
   image: OG_IMAGE,
-  description: 'Сухие корма Хвостик.МЯУ и Хвостик.ГАВ с доставкой по Санкт-Петербургу и Ленинградской области.',
-  areaServed: [{ '@type': 'City', name: 'Санкт-Петербург' }, { '@type': 'AdministrativeArea', name: 'Ленинградская область' }],
+  description: 'Интернет-магазин сухих кормов Хвостик.МЯУ и Хвостик.ГАВ с бесплатной доставкой до пунктов выдачи 5Post в Санкт-Петербурге.',
+  areaServed: { '@type': 'City', name: 'Санкт-Петербург' },
   currenciesAccepted: 'RUB',
   sameAs: [contacts.telegram, contacts.max],
   ...(contacts.demo ? {} : { telephone: contacts.phone, email: contacts.email }),
+}
+
+// Бесплатная доставка по Санкт-Петербургу и возврат 7 дней — для расширенных сниппетов
+const shipping = {
+  '@type': 'OfferShippingDetails',
+  shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'RUB' },
+  shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'RU', addressRegion: 'Санкт-Петербург' },
+}
+const returnPolicy = {
+  '@type': 'MerchantReturnPolicy',
+  applicableCountry: 'RU',
+  returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+  merchantReturnDays: 7,
 }
 
 const crumbs = (list) => ({
@@ -61,6 +74,8 @@ const productLd = (p) => ({
       url: abs(productPath(p)),
       seller: { '@id': abs('#store') },
       areaServed: { '@type': 'City', name: 'Санкт-Петербург' },
+      shippingDetails: shipping,
+      hasMerchantReturnPolicy: returnPolicy,
     })),
   },
 })
@@ -99,8 +114,8 @@ export function head(route) {
   let title, desc, ld = [], image = OG_IMAGE, type = 'website', robots = 'index, follow, max-image-preview:large'
   switch (route.type) {
     case 'home':
-      title = 'Корма Хвостик для кошек и собак — купить в СПб с доставкой'
-      desc = 'Сухие корма Хвостик.МЯУ и Хвостик.ГАВ: 8 рецептов для кошек, котят, собак и щенков. Цены от 234 ₽, доставка по СПб и Ленобласти, бесплатно от 2 000 ₽.'
+      title = 'Корма Хвостик для кошек и собак — купить в СПб, доставка бесплатно'
+      desc = `Сухие корма Хвостик.МЯУ и Хвостик.ГАВ: 8 рецептов для кошек, котят, собак и щенков. Цены от ${minAll} ₽, бесплатная доставка до пунктов 5Post в СПб.`
       ld = [org, { '@type': 'WebSite', '@id': abs('#site'), url: abs(), name: BRAND, inLanguage: 'ru-RU', publisher: { '@id': abs('#store') } }, listLd(products, 'Корма Хвостик')]
       break
     case 'kind': {
@@ -115,7 +130,7 @@ export function head(route) {
       const base = `${p.line}: ${p.short}`
       const tasty = p.short.includes(p.taste.split(' ')[0].slice(0, 5)) ? base : `${base}, ${p.taste}`
       title = `${(tasty + ' — купить в СПб').length <= 62 ? tasty : base} — купить в СПб`
-      desc = `${p.name} ${p.line}. Цена от ${minPrice(p)} ₽, фасовки ${p.weights.map((w) => w.w).join(', ')}. Доставка по Санкт-Петербургу и Ленобласти.`
+      desc = `${p.name} ${p.line}. Цена от ${minPrice(p)} ₽, фасовки ${p.weights.map((w) => w.w).join(', ')}. Бесплатная доставка до пунктов 5Post в Санкт-Петербурге.`
       image = abs(`img/p/${p.id}.png`)
       type = 'product'
       ld = [crumbs([['Главная', ''], [k.h1, k.path], [`${p.line} ${p.short}`, productPath(p)]]), productLd(p)]
