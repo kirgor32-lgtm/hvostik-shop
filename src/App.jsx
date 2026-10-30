@@ -894,7 +894,7 @@ function Footer({ nav }) {
         ))}
         <div>
           <div className="mb-3 font-semibold">Поговорим про питомцев</div>
-          <a href={contacts.phoneHref} className="text-2xl font-bold">{contacts.phone}</a>
+          <a href={contacts.phoneHref} className="whitespace-nowrap text-lg font-bold sm:text-2xl">{contacts.phone}</a>
           <p className="mt-1 text-sm text-white/70">{contacts.hours}</p>
           <div className="mt-4 flex gap-2">
             <a href={contacts.telegram} target="_blank" rel="noopener nofollow" aria-label="Telegram" className="rounded-[10px] bg-white/10 p-2.5 hover:bg-white/20"><TgIcon className="size-6" /></a>
