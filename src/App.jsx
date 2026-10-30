@@ -621,7 +621,7 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с �
                     <div className="flex items-center gap-2 text-txt-2"><Clock className="size-4" />{contacts.hours}</div>
                   </div>
                 </div>
-                <LeadForm topic={t.id} />
+                <LeadForm topic={t.id} doneText={t.done} />
               </div>
             </TabsContent>
           ))}
