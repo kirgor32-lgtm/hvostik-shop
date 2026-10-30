@@ -414,6 +414,7 @@ function ProductCard({ p }) {
       <h3 className="mt-1 text-sm leading-snug sm:text-[15px]">
         <Link to={productPath(p)} className="hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
       </h3>
+      {p.composition && <p className="mt-1 line-clamp-1 text-xs text-txt-2">{p.composition.top}</p>}
       <div className="mt-auto flex gap-1.5 pt-3" role="group" aria-label="Фасовка">
         {p.weights.map((w, i) => (
           <button key={w.w} onClick={() => setVi(i)} aria-pressed={i === vi} className={cn('h-9 min-w-0 flex-1 whitespace-nowrap rounded-[8px] border px-1 text-sm sm:flex-none sm:px-3', i === vi ? 'border-ink bg-ink text-white' : 'border-gray-3 hover:border-ink')}>{w.w}</button>
@@ -737,7 +738,23 @@ function ProductPage({ p }) {
           </dl>
           <h2 className="mt-8 text-xl font-extrabold">Описание</h2>
           <p className="mt-3 text-[15px] leading-relaxed">{p.more}</p>
-          <p className="mt-3 text-sm text-txt-2">Состав, гарантированный анализ и таблица суточной нормы указаны на упаковке. Свежая вода должна быть в доступе всегда.</p>
+          {p.composition ? (
+            <>
+              <h2 className="mt-8 text-xl font-extrabold">Состав</h2>
+              <p className="mt-3 text-[15px] leading-relaxed">{p.composition.full}</p>
+              <h2 className="mt-8 text-xl font-extrabold">Гарантированный анализ, на 100 г</h2>
+              <dl className="mt-3 grid grid-cols-[minmax(110px,auto)_1fr] gap-x-6 gap-y-2 text-[15px]">
+                <div className="contents"><dt className="text-txt-2">Белки</dt><dd>{p.composition.analysis.protein}</dd></div>
+                <div className="contents"><dt className="text-txt-2">Жиры</dt><dd>{p.composition.analysis.fat}</dd></div>
+                <div className="contents"><dt className="text-txt-2">Клетчатка</dt><dd>{p.composition.analysis.fiber}</dd></div>
+                <div className="contents"><dt className="text-txt-2">Зола</dt><dd>{p.composition.analysis.ash}</dd></div>
+                <div className="contents"><dt className="text-txt-2">Влажность</dt><dd>{p.composition.analysis.moisture}</dd></div>
+              </dl>
+              <p className="mt-3 text-sm text-txt-2">Таблица суточной нормы — на упаковке. Свежая вода должна быть в доступе всегда.</p>
+            </>
+          ) : (
+            <p className="mt-3 text-sm text-txt-2">Состав, гарантированный анализ и таблица суточной нормы указаны на упаковке. Свежая вода должна быть в доступе всегда.</p>
+          )}
         </div>
       </article>
       <section className="bg-gray-1 py-14">
