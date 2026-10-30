@@ -87,10 +87,10 @@ function MaxIcon({ className }) {
     </svg>
   )
 }
-function MessengerButtons({ className }) {
-  const c = 'flex h-11 items-center gap-2 rounded-[10px] bg-white px-4 text-sm font-semibold shadow-card hover:bg-gray-1 flex-none'
+function MessengerButtons({ className, stack }) {
+  const c = cn('flex h-11 items-center gap-2 rounded-[10px] bg-white px-4 text-sm font-semibold shadow-card hover:bg-gray-1', stack ? 'w-full' : 'flex-none')
   return (
-    <div className={cn('flex gap-2', className)}>
+    <div className={cn(stack ? 'flex flex-col gap-2' : 'flex gap-2', className)}>
       <a href={contacts.telegram} target="_blank" rel="noopener nofollow" className={c}><TgIcon className="size-5" /> Написать в Telegram</a>
       <a href={contacts.max} target="_blank" rel="noopener nofollow" className={c}><MaxIcon className="size-5" /> Написать в Max</a>
     </div>
@@ -1077,7 +1077,7 @@ function Panels({ nav }) {
             <MenuLink to={pages.contacts.path} onClick={close}>Контакты</MenuLink>
             <a href={contacts.phoneHref} className="mt-5 block text-xl font-bold">{contacts.phone}</a>
             <div className="text-sm text-txt-2">{contacts.hours}</div>
-            <MessengerButtons className="mt-4" />
+            <MessengerButtons className="mt-4" stack />
           </nav>
         </SheetContent>
       </Sheet>
