@@ -183,7 +183,7 @@ function SearchBox({ filter, nav }) {
         <Search className="size-5 shrink-0 text-txt-2" />
         <input value={text} onChange={(e) => { setText(e.target.value); setOpen(true); setHi(-1) }} onFocus={() => setOpen(true)} onKeyDown={onKey}
           type="search" role="combobox" aria-expanded={open} aria-controls="search-list" aria-autocomplete="list" aria-label="Поиск корма"
-          placeholder="Поиск: котята, щенки, говядина…" className="w-full min-w-0 bg-transparent text-[15px] outline-none placeholder:text-txt-2 [&::-webkit-search-cancel-button]:hidden" />
+          placeholder="Поиск: котята, щенки, говядина…" className="w-full min-w-0 bg-transparent text-[16px] outline-none placeholder:text-txt-2 sm:text-[15px] [&::-webkit-search-cancel-button]:hidden" />
         {text && <button type="button" onClick={() => setText('')} aria-label="Очистить"><X className="size-4 text-txt-2" /></button>}
       </label>
       {open && (
@@ -581,10 +581,10 @@ function LeadForm({ topic, compact, onSubmit, cta = 'Отправить', doneTe
   return (
     <form onSubmit={submit} noValidate className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field err={err.name} label="Имя"><Input autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} aria-invalid={!!err.name} className="h-12 rounded-[10px] bg-white text-[15px]" /></Field>
-        <Field err={err.phone} label="Телефон"><Input type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} aria-invalid={!!err.phone} className="h-12 rounded-[10px] bg-white text-[15px]" /></Field>
+        <Field err={err.name} label="Имя"><Input autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} aria-invalid={!!err.name} className="h-12 rounded-[10px] bg-white text-[16px]" /></Field>
+        <Field err={err.phone} label="Телефон"><Input type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} aria-invalid={!!err.phone} className="h-12 rounded-[10px] bg-white text-[16px]" /></Field>
       </div>
-      {!compact && <Textarea aria-label="Сообщение" placeholder={topic === 'order' ? 'Номер заказа и что случилось' : 'Сообщение (необязательно)'} value={f.msg} onChange={(e) => setF({ ...f, msg: e.target.value })} className="min-h-24 rounded-[10px] bg-white text-[15px]" />}
+      {!compact && <Textarea aria-label="Сообщение" placeholder={topic === 'order' ? 'Номер заказа и что случилось' : 'Сообщение (необязательно)'} value={f.msg} onChange={(e) => setF({ ...f, msg: e.target.value })} className="min-h-24 rounded-[10px] bg-white text-[16px]" />}
       <Consent checked={f.ok} onChange={(ok) => setF({ ...f, ok })} err={err.ok} />
       <Button type="submit" disabled={state === 'send'} className={cn(inkBtn, 'h-12 w-full sm:w-auto sm:px-10')}>
         {state === 'send' ? <Loader2 className="animate-spin" /> : <><Send className="size-4" />{cta}</>}
@@ -1210,8 +1210,8 @@ function Login() {
       <div className="mb-2 rounded-[14px] bg-violet-soft p-4 text-sm">Войдите, чтобы видеть свои заказы и избранное. Если к номеру привязан Telegram или Max, код придёт туда.</div>
       {step === 'phone' ? (
         <>
-          <Input aria-label="Имя" autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="h-12 rounded-[10px] text-[15px]" />
-          <Input aria-label="Телефон" type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} className="h-12 rounded-[10px] text-[15px]" />
+          <Input aria-label="Имя" autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="h-12 rounded-[10px] text-[16px]" />
+          <Input aria-label="Телефон" type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} className="h-12 rounded-[10px] text-[16px]" />
           {/* поле-ловушка для ботов: людям не видно */}
           <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" value={f.trap} onChange={(e) => setF({ ...f, trap: e.target.value })} className="absolute -left-[9999px] h-px w-px opacity-0" />
           <Consent checked={f.ok} onChange={(ok) => setF({ ...f, ok })} />
