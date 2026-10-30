@@ -90,7 +90,7 @@ function MaxIcon({ className }) {
 function MessengerButtons({ className, stack }) {
   const c = cn('flex h-11 items-center gap-2 rounded-[10px] bg-white px-4 text-sm font-semibold shadow-card hover:bg-gray-1', stack ? 'w-full' : 'flex-none')
   return (
-    <div className={cn(stack ? 'flex flex-col gap-2' : 'flex gap-2', className)}>
+    <div className={cn(stack ? 'flex flex-col gap-2' : 'flex flex-wrap gap-2', className)}>
       <a href={contacts.telegram} target="_blank" rel="noopener nofollow" className={c}><TgIcon className="size-5" /> Написать в Telegram</a>
       <a href={contacts.max} target="_blank" rel="noopener nofollow" className={c}><MaxIcon className="size-5" /> Написать в Max</a>
     </div>
@@ -819,7 +819,7 @@ function TextPage({ id, topic, setTopic }) {
             </div>
             <div className="rounded-[16px] bg-gray-1 p-6">
               <div className="text-sm text-txt-2">Мессенджеры</div>
-              <MessengerButtons className="mt-3" />
+              <MessengerButtons className="mt-3" stack />
             </div>
             <div className="rounded-[16px] bg-gray-1 p-6">
               <div className="text-sm text-txt-2">Продавец</div>
