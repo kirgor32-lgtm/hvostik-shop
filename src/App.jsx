@@ -88,9 +88,9 @@ function MaxIcon({ className }) {
   )
 }
 function MessengerButtons({ className }) {
-  const c = 'flex h-11 items-center gap-2 rounded-[10px] bg-white px-4 text-sm font-semibold shadow-card hover:bg-gray-1'
+  const c = 'flex h-11 items-center gap-2 rounded-[10px] bg-white px-4 text-sm font-semibold shadow-card hover:bg-gray-1 flex-none'
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <div className={cn('flex gap-2', className)}>
       <a href={contacts.telegram} target="_blank" rel="noopener nofollow" className={c}><TgIcon className="size-5" /> Написать в Telegram</a>
       <a href={contacts.max} target="_blank" rel="noopener nofollow" className={c}><MaxIcon className="size-5" /> Написать в Max</a>
     </div>
@@ -597,7 +597,7 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с �
       <div className="wrap">
         <SectionTitle as={as}>{title}</SectionTitle>
         <Tabs value={topic} onValueChange={setTopic} className="mt-6 gap-6">
-          <TabsList className="no-scrollbar h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 group-data-horizontal/tabs:h-auto">
+          <TabsList className="no-scrollbar h-10 w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 group-data-horizontal/tabs:h-10">
             {contactTopics.map((t) => (
               <TabsTrigger key={t.id} value={t.id} className="h-10 flex-none rounded-full border-0 bg-white px-5 text-[15px] text-ink shadow-none data-[state=active]:bg-violet-dark data-[state=active]:text-white">{t.label}</TabsTrigger>
             ))}
