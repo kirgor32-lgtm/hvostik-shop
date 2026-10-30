@@ -1058,9 +1058,9 @@ function Panels({ nav }) {
 
       {/* мобильное меню (бургер) */}
       <Sheet open={st.panel === 'menu'} onOpenChange={(o) => !o && close()}>
-        <SheetContent side="left" className="flex w-[86%] max-w-[360px] flex-col gap-0 p-0">
+        <SheetContent side="left" className="flex w-[320px] max-w-[86vw] flex-none touch-pan-y flex-col gap-0 overflow-x-hidden p-0">
           <SheetHeader className="border-b border-gray-2 p-5"><SheetTitle asChild><div><Logo onClick={close} /></div></SheetTitle><SheetDescription className="sr-only">Меню сайта</SheetDescription></SheetHeader>
-          <nav aria-label="Меню" className="flex-1 overflow-y-auto p-5">
+          <nav aria-label="Меню" className="flex-1 touch-pan-y overflow-x-hidden overflow-y-auto p-5">
             <div className="mb-2 text-lg font-extrabold">Каталог</div>
             <MenuLink to={kinds.cat.path} onClick={close}>Корм для кошек</MenuLink>
             <MenuLink to={kinds.dog.path} onClick={close}>Корм для собак</MenuLink>
