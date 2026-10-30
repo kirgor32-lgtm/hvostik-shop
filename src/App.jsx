@@ -569,7 +569,7 @@ function LeadForm({ topic, compact, onSubmit, cta = 'Отправить', doneTe
       <div className="rounded-[16px] bg-white p-8 text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-violet-dark text-white"><Check className="size-7" /></div>
         <h3 className="mt-4 text-2xl font-extrabold">Спасибо, {f.name.trim()}!</h3>
-        <p className="mt-2 text-txt-2">{doneText || 'Менеджер свяжется с вами в ближайшее время.'} Это демо — заявка никуда не ушла.</p>
+        <p className="mt-2 text-txt-2">{doneText || 'Мы на связи — ответим и поможем подобрать то, что понравится питомцу.'} Это демо — заявка никуда не ушла.</p>
       </div>
     )
   return (
@@ -993,9 +993,9 @@ function Panels({ nav }) {
     <>
       <Sheet open={st.panel === 'cart'} onOpenChange={(o) => !o && close()}>
         <SheetContent className={side}>
-          {head('Корзина', st.count ? `${st.count} шт. на ${rub(st.total)}` : 'Пока пусто')}
+          {head('Корзина', st.count ? `${st.count} шт. на ${rub(st.total)}` : 'Пока пусто — порадуем питомца?')}
           <div className="flex-1 space-y-3 overflow-y-auto p-5">
-            {!st.items.length && <Empty icon={ShoppingBag} text="добавьте корм из каталога" action={toCatalog} />}
+            {!st.items.length && <Empty icon={ShoppingBag} text="загляните в каталог — там точно найдётся что-то по вкусу" action={toCatalog} />}
             {st.items.map((i) => (
               <div key={i.key} className="flex gap-3 rounded-[14px] bg-gray-1 p-3">
                 <div className="flex size-20 shrink-0 items-center justify-center rounded-[10px] bg-white p-1"><img src={img(i.id)} alt="" className="max-h-full w-auto" /></div>
@@ -1018,7 +1018,7 @@ function Panels({ nav }) {
             <div className="border-t border-gray-2 p-5">
               <div className="mb-3 flex items-center gap-2 rounded-[10px] bg-violet-soft px-3 py-2 text-sm"><Truck className="size-4 text-violet-dark" />Бесплатная доставка до пункта 5Post</div>
               <div className="mb-4 flex justify-between text-lg"><span>Итого</span><b>{rub(st.total)}</b></div>
-              <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>Оформить заказ</Button>
+              <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>Побаловать питомца</Button>
             </div>
           )}
         </SheetContent>
@@ -1028,7 +1028,7 @@ function Panels({ nav }) {
         <SheetContent className={side}>
           {head('Избранное', favs.length ? `${favs.length} шт.` : 'Пока пусто')}
           <div className="flex-1 space-y-3 overflow-y-auto p-5">
-            {!favs.length && <Empty icon={Heart} text="нажмите ♡ на карточке корма, чтобы сохранить его здесь" action={toCatalog} />}
+            {!favs.length && <Empty icon={Heart} text="нажмите ♡ на понравившемся корме — сохраним для вашего питомца" action={toCatalog} />}
             {favs.map((p) => {
               const v = p.weights[p.weights.length > 2 ? 1 : 0]
               return (

@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import { stripBase, match, head, applyHead } from './seo'
 
+if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+
 const el = document.getElementById('root')
 const path = stripBase(location.pathname)
 const route = match(path)
