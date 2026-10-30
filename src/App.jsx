@@ -395,6 +395,7 @@ function Pills({ label, items, value, onChange, small }) {
 function ProductCard({ p }) {
   const st = useStore()
   const [vi, setVi] = useState(p.weights.length > 2 ? 1 : 0)
+  const [showComp, setShowComp] = useState(false)
   const v = p.weights[vi]
   const qty = st.qtyOf(p.id, v.w)
   const faved = st.fav.includes(p.id)
@@ -414,7 +415,27 @@ function ProductCard({ p }) {
       <h3 className="mt-1 text-sm leading-snug sm:text-[15px]">
         <Link to={productPath(p)} className="hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
       </h3>
-      {p.composition && <p className="mt-1 line-clamp-1 text-xs text-txt-2">{p.composition.top}</p>}
+      {p.composition && (
+        <div className="mt-1 text-xs text-txt-2">
+          {showComp ? (
+            <>
+              <p className="leading-relaxed">{p.composition.full}</p>
+              <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+                <span>Белки {p.composition.analysis.protein}</span>
+                <span>Жиры {p.composition.analysis.fat}</span>
+                <span>Клетчатка {p.composition.analysis.fiber}</span>
+                <span>Зола {p.composition.analysis.ash}</span>
+              </p>
+              <button type="button" onClick={() => setShowComp(false)} className="mt-1 font-semibold text-violet-dark">Свернуть</button>
+            </>
+          ) : (
+            <>
+              <span className="line-clamp-1 inline">{p.composition.top}</span>{' '}
+              <button type="button" onClick={() => setShowComp(true)} className="font-semibold text-violet-dark">показать полностью</button>
+            </>
+          )}
+        </div>
+      )}
       <div className="mt-auto flex gap-1.5 pt-3" role="group" aria-label="Фасовка">
         {p.weights.map((w, i) => (
           <button key={w.w} onClick={() => setVi(i)} aria-pressed={i === vi} className={cn('h-9 min-w-0 flex-1 whitespace-nowrap rounded-[8px] border px-1 text-sm sm:flex-none sm:px-3', i === vi ? 'border-ink bg-ink text-white' : 'border-gray-3 hover:border-ink')}>{w.w}</button>
