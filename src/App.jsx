@@ -436,7 +436,7 @@ function Buy({ p, v, qty, big }) {
       <button className="flex size-11 items-center justify-center" onClick={() => st.setQty(`${p.id}|${v.w}`, qty + 1)} aria-label="Больше"><Plus className="size-4" /></button>
     </div>
   ) : (
-    <Button onClick={() => st.add(p, v)} className={cn(inkBtn, 'w-full gap-2', big && 'h-[52px] text-base')}><ShoppingBag className="size-4" /> В корзину</Button>
+    <Button onClick={() => st.add(p, v)} className={cn(inkBtn, 'w-full gap-2', big ? 'h-[52px] text-base' : 'h-11')}><ShoppingBag className="size-4" /> В корзину</Button>
   )
 }
 
