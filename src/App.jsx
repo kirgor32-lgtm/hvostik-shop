@@ -597,7 +597,7 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с �
       <div className="wrap">
         <SectionTitle as={as}>{title}</SectionTitle>
         <Tabs value={topic} onValueChange={setTopic} className="mt-6 gap-6">
-          <TabsList className="no-scrollbar h-10 w-full justify-start gap-2 overflow-x-auto bg-transparent p-0 group-data-horizontal/tabs:h-10">
+          <TabsList className="no-scrollbar h-10 w-full touch-pan-x justify-start gap-2 overflow-x-auto overflow-y-hidden bg-transparent p-0 group-data-horizontal/tabs:h-10">
             {contactTopics.map((t) => (
               <TabsTrigger key={t.id} value={t.id} className="h-10 flex-none rounded-full border-0 bg-white px-5 text-[15px] text-ink shadow-none data-[state=active]:bg-violet-dark data-[state=active]:text-white">{t.label}</TabsTrigger>
             ))}
@@ -871,8 +871,8 @@ function Footer({ nav }) {
   ]
   return (
     <footer className="bg-ink pb-24 pt-14 text-white md:pb-10">
-      <div className="wrap grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1.4fr]">
-        <div>
+      <div className="wrap grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1.4fr]">
+        <div className="col-span-2 lg:col-span-1">
           <Logo light />
           <p className="mt-4 text-sm text-white/70">Сухие корма Хвостик.МЯУ и Хвостик.ГАВ с бесплатной доставкой до пунктов 5Post в Санкт-Петербурге.</p>
         </div>
