@@ -282,19 +282,20 @@ function Home({ filter, setFilter, nav, topic, setTopic }) {
 function Hero({ nav }) {
   return (
     <section className="wrap pt-5">
-      <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-r from-[#fdeef1] via-[#fbe2e7] to-[#f6d2da] px-6 py-10 md:px-14 md:py-14">
+      <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-r from-[#fdeef1] via-[#fbe2e7] to-[#f6d2da] px-4 py-5 sm:px-6 sm:py-10 md:px-14 md:py-14">
         <div className="relative z-10 max-w-[560px]">
-          <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">Бесплатная доставка по Санкт-Петербургу</span>
-          <h1 className="mt-5 text-[34px] font-extrabold leading-[1.04] tracking-tight md:text-[54px]">Корма «Хвостик» для кошек и собак в Санкт-Петербурге</h1>
-          <p className="mt-5 max-w-[470px] text-lg leading-snug md:text-xl">
+          <span className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink sm:inline-block">Бесплатная доставка по Санкт-Петербургу</span>
+          <h1 className="text-[24px] font-extrabold leading-[1.1] tracking-tight sm:mt-5 sm:text-[34px] md:text-[54px]">Корма «Хвостик» для кошек и собак в Санкт-Петербурге</h1>
+          <p className="mt-2 text-[15px] text-txt-2 sm:hidden">8 рецептов · от {minAll} ₽ · бесплатная доставка</p>
+          <p className="mt-5 hidden max-w-[470px] text-lg leading-snug sm:block md:text-xl">
             Хвостик.МЯУ и Хвостик.ГАВ — восемь сухих рецептов: для взрослых, котят, щенков, стерилизованных кошек и мелких пород. От {minAll} ₽.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={kinds.cat.path} className={cn(inkBtn, 'flex h-[52px] items-center px-7 text-base')}>Корм для кошек</Link>
-            <Link to={kinds.dog.path} className="flex h-[52px] items-center rounded-[10px] bg-white px-7 text-base font-semibold hover:bg-gray-1">Корм для собак</Link>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3">
+            <Link to={kinds.cat.path} className={cn(inkBtn, 'flex h-11 items-center justify-center px-3 text-[15px] sm:h-[52px] sm:px-7 sm:text-base')}>Корм для кошек</Link>
+            <Link to={kinds.dog.path} className="flex h-11 items-center justify-center rounded-[10px] bg-white px-3 text-[15px] font-semibold hover:bg-gray-1 sm:h-[52px] sm:px-7 sm:text-base">Корм для собак</Link>
           </div>
         </div>
-        <div className="pointer-events-none mt-8 flex items-end justify-center md:absolute md:bottom-6 md:right-12 md:mt-0">
+        <div className="pointer-events-none mt-8 hidden items-end justify-center sm:flex md:absolute md:bottom-6 md:right-12 md:mt-0">
           <img src={img('myau-steril')} {...IMG} alt="Упаковка корма Хвостик.МЯУ для стерилизованных кошек" fetchPriority="high" className="relative z-10 h-auto w-[120px] -rotate-6 drop-shadow-xl md:w-[190px]" />
           <img src={img('gav-small')} {...IMG} alt="Упаковка корма Хвостик.ГАВ для собак мелких пород" fetchPriority="high" className="-ml-4 h-auto w-[120px] rotate-3 drop-shadow-xl md:w-[190px]" />
           <img src={img('myau-kitten')} {...IMG} alt="" className="-ml-6 hidden h-auto w-[160px] rotate-12 drop-shadow-xl lg:block" />
@@ -314,7 +315,7 @@ function Hero({ nav }) {
               <ChevronRight className="size-5 text-txt-2" />
             </>
           )
-          const cls = 'flex min-w-[240px] items-center gap-3 rounded-[14px] bg-gray-1 px-4 py-4 text-left transition-colors hover:bg-gray-2'
+          const cls = 'flex min-w-[220px] items-center gap-3 rounded-[14px] bg-gray-1 px-3 py-3 text-left sm:min-w-[240px] sm:px-4 sm:py-4 transition-colors hover:bg-gray-2'
           return to ? <Link key={a} to={to} className={cls}>{inner}</Link> : <button key={a} onClick={() => nav.contact(t)} className={cls}>{inner}</button>
         })}
       </div>
@@ -413,12 +414,12 @@ function ProductCard({ p }) {
       <h3 className="mt-1 text-sm leading-snug sm:text-[15px]">
         <Link to={productPath(p)} className="hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
       </h3>
-      <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Фасовка">
+      <div className="mt-auto flex gap-1.5 pt-3" role="group" aria-label="Фасовка">
         {p.weights.map((w, i) => (
-          <button key={w.w} onClick={() => setVi(i)} aria-pressed={i === vi} className={cn('h-9 rounded-[8px] border px-2.5 text-sm sm:px-3', i === vi ? 'border-ink bg-ink text-white' : 'border-gray-3 hover:border-ink')}>{w.w}</button>
+          <button key={w.w} onClick={() => setVi(i)} aria-pressed={i === vi} className={cn('h-9 min-w-0 flex-1 whitespace-nowrap rounded-[8px] border px-1 text-sm sm:flex-none sm:px-3', i === vi ? 'border-ink bg-ink text-white' : 'border-gray-3 hover:border-ink')}>{w.w}</button>
         ))}
       </div>
-      <div className="mt-auto pt-4">
+      <div className="pt-3">
         <Buy p={p} v={v} qty={qty} />
       </div>
     </article>
