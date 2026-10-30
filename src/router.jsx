@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { BASE } from './data'
 import { match, head, applyHead, stripBase } from './seo'
 
@@ -8,16 +8,26 @@ export const href = (path = '') => BASE + path
 
 export function RouterProvider({ initialPath, children }) {
   const [route, setRoute] = useState(() => match(initialPath))
+  const pendingHash = useRef(null)
   const navigate = useCallback((path, opts = {}) => {
     const r = match(path)
     window.history.pushState({}, '', href(r.path) + (opts.hash ? '#' + opts.hash : ''))
+    pendingHash.current = opts.hash || null
     setRoute(r)
     applyHead(head(r))
-    if (opts.hash) setTimeout(() => document.getElementById(opts.hash)?.scrollIntoView({ behavior: 'smooth' }), 40)
-    else window.scrollTo({ top: 0 })
   }, [])
+  // Скроллим ПОСЛЕ того, как новая страница отрисовалась — иначе браузер
+  // (scroll anchoring) может вернуть скролл вниз, если клик был в подвале
   useEffect(() => {
-    const onPop = () => { const r = match(stripBase(location.pathname)); setRoute(r); applyHead(head(r)) }
+    if (pendingHash.current) {
+      const hash = pendingHash.current
+      setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' }), 40)
+    } else {
+      window.scrollTo({ top: 0 })
+    }
+  }, [route])
+  useEffect(() => {
+    const onPop = () => { pendingHash.current = null; const r = match(stripBase(location.pathname)); setRoute(r); applyHead(head(r)) }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
