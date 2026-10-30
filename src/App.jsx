@@ -296,8 +296,8 @@ function Hero({ nav }) {
           </div>
         </div>
         <div className="pointer-events-none flex shrink-0 items-center justify-center sm:absolute sm:inset-x-0 sm:bottom-0 sm:top-0 sm:items-end sm:justify-end sm:pb-6 sm:pr-12 md:pr-12">
-          <img src={img('myau-steril')} {...IMG} alt="Упаковка корма Хвостик.МЯУ для стерилизованных кошек" fetchPriority="high" className="relative z-10 h-auto w-[72px] -rotate-6 drop-shadow-lg sm:w-[120px] md:w-[190px]" />
-          <img src={img('gav-small')} {...IMG} alt="Упаковка корма Хвостик.ГАВ для собак мелких пород" fetchPriority="high" className="-ml-2.5 h-auto w-[72px] rotate-3 drop-shadow-lg sm:-ml-4 sm:w-[120px] md:w-[190px]" />
+          <img src={img('myau-steril')} {...IMG} alt="Упаковка корма Хвостик.МЯУ для стерилизованных кошек" fetchPriority="high" className="relative z-10 h-auto w-[95px] -rotate-6 drop-shadow-lg sm:w-[120px] md:w-[190px]" />
+          <img src={img('gav-small')} {...IMG} alt="Упаковка корма Хвостик.ГАВ для собак мелких пород" fetchPriority="high" className="-ml-3 h-auto w-[95px] rotate-3 drop-shadow-lg sm:-ml-4 sm:w-[120px] md:w-[190px]" />
           <img src={img('myau-kitten')} {...IMG} alt="" className="-ml-3 hidden h-auto w-[80px] rotate-12 drop-shadow-lg sm:block sm:-ml-6 sm:w-[160px] lg:block" />
         </div>
       </div>
