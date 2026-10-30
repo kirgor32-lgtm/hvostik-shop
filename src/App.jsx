@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Search, ShoppingBag, Heart, User, MapPin, Menu, X, Minus, Plus, ChevronRight, Phone, Clock, LogOut, Package,
+  Search, ShoppingBag, Heart, User, Menu, X, Minus, Plus, ChevronRight, Phone, Clock, LogOut, Package,
   Drumstick, Scale, HeartPulse, ShieldCheck, Factory, BadgeCheck, Check, Trash2, Loader2, Send, Truck, Sparkles, PawPrint, Cookie,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { cn } from '@/lib/utils'
 import { StoreProvider, useStore, rub, fmtPhone } from './store'
 import { RouterProvider, useRoute, Link } from './router'
+import { sendCode, checkCode, linkedChannels, setLinked, channelNames } from './auth'
 import {
   BASE, contacts, seller, products, kinds, searchHints, benefits, stats, checks, posts, contactTopics, faq, pages,
   productPath, minPrice, img, declaration, manufacturer, minAll,
@@ -100,7 +101,7 @@ function MessengerButtons({ className }) {
 function Logo({ light, onClick }) {
   return (
     <Link to="" onClick={onClick} className="flex shrink-0 items-center gap-2.5" aria-label="Хвостик — на главную">
-      <img src={`${BASE}favicon.svg`} alt="" width="44" height="44" className="size-10 sm:size-11" />
+      <img src={`${BASE}${light ? 'logo-light.svg' : 'favicon.svg'}`} alt="" width="44" height="44" className="size-10 sm:size-11" />
       <span className={cn('text-[22px] font-extrabold leading-none tracking-tight', light && 'text-white')}>Хвостик</span>
     </Link>
   )
@@ -286,7 +287,7 @@ function Hero({ nav }) {
           <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">Бесплатная доставка по Санкт-Петербургу</span>
           <h1 className="mt-5 text-[34px] font-extrabold leading-[1.04] tracking-tight md:text-[54px]">Корма «Хвостик» для кошек и собак в Санкт-Петербурге</h1>
           <p className="mt-5 max-w-[470px] text-lg leading-snug md:text-xl">
-            Хвостик.МЯУ и Хвостик.ГАВ — восемь сухих рецептов: для взрослых, котят, щенков, стерилизованных кошек и мелких пород. От {minAll} ₽.
+            Хвостик.МЯУ и Хвостик.ГАВ — восемь сухих рецептов: для взрослых, котят, щенков, стерилизованных кошек и мелких пород. От {minAll} ₽.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to={kinds.cat.path} className={cn(inkBtn, 'flex h-[52px] items-center px-7 text-base')}>Корм для кошек</Link>
@@ -902,11 +903,11 @@ function Messengers() {
     document.addEventListener('keydown', esc)
     return () => { document.removeEventListener('pointerdown', out); document.removeEventListener('keydown', esc) }
   }, [open])
-  const item = 'flex items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-[0_6px_24px_rgba(46,44,56,.2)] hover:bg-gray-1'
+  const item = 'flex w-full items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-[0_6px_24px_rgba(46,44,56,.2)] hover:bg-gray-1'
   return (
     <div ref={box} className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-2">
       {open && (
-        <div className="flex flex-col items-end gap-2">
+        <div className="grid w-[156px] gap-2">
           <a href={contacts.telegram} target="_blank" rel="noopener nofollow" onClick={() => setOpen(false)} className={item}><TgIcon className="size-8" />Telegram</a>
           <a href={contacts.max} target="_blank" rel="noopener nofollow" onClick={() => setOpen(false)} className={item}><MaxIcon className="size-8" />Max</a>
         </div>
@@ -930,21 +931,28 @@ function CookieBanner() {
   }, [])
   const save = (v) => { try { localStorage.setItem('hv-cookies', JSON.stringify({ v, at: new Date().toISOString() })) } catch { /* пусто */ } setShow(false) }
   if (!show) return null
+  const policy = <Link to={pages.privacy.path} className="text-violet-dark underline">политике конфиденциальности</Link>
   return (
-    <div role="region" aria-label="Cookie и персональные данные" className="fixed inset-x-3 bottom-3 z-50 rounded-[16px] bg-white p-4 shadow-[0_12px_40px_rgba(46,44,56,.22)] sm:inset-x-auto sm:left-5 sm:bottom-5 sm:max-w-[460px]">
-      <div className="flex gap-3">
-        <Cookie className="mt-0.5 size-6 shrink-0 text-violet-dark" aria-hidden />
-        <div>
-          <div className="font-bold">Мы используем cookie</div>
-          <p className="mt-1 text-sm text-txt-2">
-            Используем cookie и обрабатываем персональные данные, чтобы работали корзина и личный кабинет. Подробнее — в{' '}
-            <Link to={pages.privacy.path} className="text-violet-dark underline">политике конфиденциальности</Link>.
-          </p>
-        </div>
+    <div role="region" aria-label="Cookie и персональные данные"
+      className="fixed inset-x-2 bottom-2 z-50 rounded-[14px] bg-white p-3 shadow-[0_8px_30px_rgba(46,44,56,.22)] sm:inset-x-auto sm:bottom-5 sm:left-5 sm:max-w-[460px] sm:rounded-[16px] sm:p-5">
+      {/* телефон: одна короткая строка и две маленькие кнопки */}
+      <div className="flex items-center gap-2 sm:hidden">
+        <p className="flex-1 text-[12px] leading-snug text-txt-2">Мы используем cookie и обрабатываем персональные данные. Подробнее — в {policy}.</p>
+        <button onClick={() => save('all')} className="h-10 shrink-0 rounded-[10px] bg-ink px-5 text-[14px] font-semibold text-white">Ок</button>
       </div>
-      <div className="mt-3 flex gap-2">
-        <Button onClick={() => save('all')} className={cn(inkBtn, 'flex-1')}>Принять</Button>
-        <Button onClick={() => save('necessary')} variant="ghost" className="h-11 flex-1 rounded-[10px] bg-gray-1 text-sm font-semibold hover:bg-gray-2">Только необходимые</Button>
+      {/* компьютер и планшет */}
+      <div className="hidden sm:block">
+        <div className="flex gap-3">
+          <Cookie className="mt-0.5 size-6 shrink-0 text-violet-dark" aria-hidden />
+          <div>
+            <div className="font-bold">Мы используем cookie</div>
+            <p className="mt-1 text-sm text-txt-2">Используем cookie и обрабатываем персональные данные, чтобы работали корзина и личный кабинет. Подробнее — в {policy}.</p>
+          </div>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button onClick={() => save('all')} className={cn(inkBtn, 'flex-1')}>Принять</Button>
+          <Button onClick={() => save('necessary')} variant="ghost" className="h-11 flex-1 rounded-[10px] bg-gray-1 text-sm font-semibold hover:bg-gray-2">Только необходимые</Button>
+        </div>
       </div>
     </div>
   )
@@ -1083,40 +1091,91 @@ function Empty({ icon: I, text, action }) {
 
 function Login() {
   const st = useStore()
-  const [f, setF] = useState({ name: '', phone: '', code: '', ok: false })
+  const [f, setF] = useState({ name: '', phone: '', code: '', ok: false, trap: '' })
   const [step, setStep] = useState('phone')
   const [err, setErr] = useState('')
-  const next = (e) => {
+  const [busy, setBusy] = useState(false)
+  const [sent, setSent] = useState(null) // { channel, demoCode }
+  const [wait, setWait] = useState(0)
+  const started = useRef(Date.now())
+  useEffect(() => {
+    if (!wait) return
+    const t = setTimeout(() => setWait(wait - 1), 1000)
+    return () => clearTimeout(t)
+  }, [wait])
+  const request = async () => {
+    setBusy(true)
+    const res = await sendCode(f.phone, { trap: f.trap, startedAt: started.current })
+    setBusy(false)
+    if (res.resendIn) setWait(res.resendIn)
+    if (res.error) return setErr(res.error)
+    setErr(''); setSent(res); setF((x) => ({ ...x, code: '' })); setStep('code')
+  }
+  const next = async (e) => {
     e.preventDefault()
+    if (busy) return
     if (step === 'phone') {
       if (f.name.trim().length < 2) return setErr('Введите имя')
       if (f.phone.replace(/\D/g, '').length !== 11) return setErr('Введите телефон полностью')
       if (!f.ok) return setErr('Нужно согласие на обработку данных')
-      setErr(''); setStep('code')
-    } else {
-      if (f.code.length !== 4) return setErr('Введите 4 цифры')
-      st.setUser({ name: f.name.trim(), phone: f.phone })
+      return request()
     }
+    if (f.code.length !== 4) return setErr('Введите 4 цифры')
+    setBusy(true)
+    const res = await checkCode(f.phone, f.code)
+    setBusy(false)
+    if (res.error) return setErr(res.error)
+    st.setUser({ name: f.name.trim(), phone: f.phone })
   }
+  const where = sent?.channel === 'sms' ? `по смс на ${f.phone}` : `в ${channelNames[sent?.channel]} — аккаунт, привязанный к ${f.phone}`
   return (
     <form onSubmit={next} noValidate className="space-y-3">
-      <div className="mb-2 rounded-[14px] bg-violet-soft p-4 text-sm">Войдите, чтобы видеть свои заказы и избранное.</div>
+      <div className="mb-2 rounded-[14px] bg-violet-soft p-4 text-sm">Войдите, чтобы видеть свои заказы и избранное. Если к номеру привязан Telegram или Max, код придёт туда.</div>
       {step === 'phone' ? (
         <>
           <Input aria-label="Имя" autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="h-12 rounded-[10px] text-[15px]" />
           <Input aria-label="Телефон" type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} className="h-12 rounded-[10px] text-[15px]" />
+          {/* поле-ловушка для ботов: людям не видно */}
+          <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" value={f.trap} onChange={(e) => setF({ ...f, trap: e.target.value })} className="absolute -left-[9999px] h-px w-px opacity-0" />
           <Consent checked={f.ok} onChange={(ok) => setF({ ...f, ok })} />
         </>
       ) : (
         <>
-          <p className="text-[15px]">Код отправлен на {f.phone}. <button type="button" className="text-violet-dark underline" onClick={() => setStep('phone')}>изменить</button></p>
-          <Input aria-label="Код из смс" autoFocus placeholder="Код из смс" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.replace(/\D/g, '') })} className="h-12 rounded-[10px] text-center text-xl tracking-[.5em]" />
-          <p className="text-xs text-txt-2">Демо: подойдут любые 4 цифры, смс не отправляется.</p>
+          <p className="text-[15px]">Код отправлен {where}. <button type="button" className="text-violet-dark underline" onClick={() => { setStep('phone'); setErr('') }}>Изменить номер</button></p>
+          <Input aria-label="Код" autoFocus placeholder="Код" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.replace(/\D/g, '') })} className="h-12 rounded-[10px] text-center text-xl tracking-[.5em]" />
+          {sent?.demoCode && <p className="text-xs text-txt-2">Демо: сообщения пока не отправляются, ваш код — {sent.demoCode}</p>}
+          <button type="button" disabled={wait > 0 || busy} onClick={request} className="text-sm text-violet-dark underline disabled:text-txt-2 disabled:no-underline">
+            {wait > 0 ? `Отправить код повторно через ${wait} с` : 'Отправить код повторно'}
+          </button>
         </>
       )}
-      {err && <p className="text-sm text-destructive">{err}</p>}
-      <Button type="submit" className={cn(inkBtn, 'h-12 w-full text-base')}>{step === 'phone' ? 'Получить код' : 'Войти'}</Button>
+      {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
+      <Button type="submit" disabled={busy} className={cn(inkBtn, 'h-12 w-full text-base')}>{busy ? <Loader2 className="size-5 animate-spin" /> : step === 'phone' ? 'Получить код' : 'Войти'}</Button>
     </form>
+  )
+}
+
+// Привязка мессенджеров: после привязки коды для входа приходят туда, а не по смс
+function LinkedMessengers() {
+  const st = useStore()
+  const [linked, setL] = useState(() => linkedChannels(st.user.phone))
+  const toggle = (c) => setL(setLinked(st.user.phone, c, !linked.includes(c)))
+  return (
+    <div className="rounded-[14px] border border-gray-2 p-4">
+      <div className="font-semibold">Коды для входа</div>
+      <p className="mt-1 text-sm text-txt-2">Привяжите мессенджер — коды будут приходить туда, а не по смс.</p>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {[['telegram', TgIcon], ['max', MaxIcon]].map(([c, I]) => {
+          const on = linked.includes(c)
+          return (
+            <button key={c} type="button" onClick={() => toggle(c)} aria-pressed={on}
+              className={cn('flex h-11 items-center justify-center gap-2 rounded-[10px] text-sm font-semibold transition-colors', on ? 'bg-violet-soft text-violet-dark' : 'bg-gray-1 hover:bg-gray-2')}>
+              <I className="size-6" />{channelNames[c]}{on && <span className="flex items-center gap-0.5 text-xs font-medium"><Check className="size-3.5" />подключён</span>}
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -1126,16 +1185,17 @@ function Profile({ nav }) {
     <div className="space-y-5">
       <div className="flex items-center gap-3 rounded-[14px] bg-gray-1 p-4">
         <span className="flex size-12 items-center justify-center rounded-full bg-violet-dark text-lg font-bold text-white">{st.user.name[0]?.toUpperCase()}</span>
-        <div className="flex-1"><div className="font-bold">{st.user.name}</div><div className="text-sm text-txt-2">{st.user.phone}</div></div>
+        <div className="min-w-0 flex-1"><div className="font-bold">{st.user.name}</div><div className="whitespace-nowrap text-sm text-txt-2">{st.user.phone}</div></div>
         <button onClick={() => st.setUser(null)} className="flex items-center gap-1 text-sm text-txt-2 hover:text-ink"><LogOut className="size-4" />Выйти</button>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <button onClick={() => st.setPanel('fav')} className="rounded-[14px] border border-gray-2 p-4 text-left hover:bg-gray-1"><Heart className="mb-2 size-5" /><div className="font-semibold">Избранное</div><div className="text-sm text-txt-2">{st.fav.length} шт.</div></button>
         <button onClick={() => st.setPanel('cart')} className="rounded-[14px] border border-gray-2 p-4 text-left hover:bg-gray-1"><ShoppingBag className="mb-2 size-5" /><div className="font-semibold">Корзина</div><div className="text-sm text-txt-2">{st.count} шт.</div></button>
       </div>
+      <LinkedMessengers />
       <div>
         <div className="mb-3 text-lg font-extrabold">Мои заказы</div>
-        {!st.orders.length && <p className="text-sm text-txt-2">Заказов пока нет. <button className="text-violet-dark underline" onClick={() => { st.setPanel(null); nav.show({}) }}>перейти в каталог</button></p>}
+        {!st.orders.length && <p className="text-sm text-txt-2">Заказов пока нет. <button className="text-violet-dark underline" onClick={() => { st.setPanel(null); nav.show({}) }}>Перейти в каталог</button></p>}
         <div className="space-y-2">
           {st.orders.map((o) => (
             <div key={o.n} className="rounded-[14px] border border-gray-2 p-4">

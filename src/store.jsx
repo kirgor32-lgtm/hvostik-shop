@@ -59,7 +59,7 @@ export function StoreProvider({ children }) {
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>
 }
 
-export const rub = (n) => n.toLocaleString('ru-RU').replace(/\u00a0|\u202f/g, ' ') + ' ₽'
+export const rub = (n) => n.toLocaleString('ru-RU').replace(/\u202f| /g, '\u00a0') + '\u00a0₽' // неразрывные пробелы: ₽ не уезжает на новую строку
 
 export const fmtPhone = (raw) => {
   let d = raw.replace(/\D/g, '')
