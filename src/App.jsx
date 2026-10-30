@@ -1023,7 +1023,10 @@ function Panels({ nav }) {
           {!!st.items.length && (
             <div className="border-t border-gray-2 p-5">
               <div className="mb-3 flex items-center gap-2 rounded-[10px] bg-violet-soft px-3 py-2 text-sm"><Truck className="size-4 text-violet-dark" />Бесплатная доставка до пункта 5Post</div>
-              <div className="mb-4 flex justify-between text-lg"><span>Итого</span><b>{rub(st.total)}</b></div>
+              <div className="mb-4 space-y-1 text-lg">
+                {st.discount > 0 && <div className="flex justify-between text-sm text-txt-2"><span>Скидка по промокоду {st.promo.code}</span><span>−{rub(st.discount)}</span></div>}
+                <div className="flex justify-between"><span>Итого</span><b>{rub(st.discount ? st.totalWithDiscount : st.total)}</b></div>
+              </div>
               <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>Перейти к оформлению</Button>
             </div>
           )}
@@ -1144,11 +1147,40 @@ function Panels({ nav }) {
       <Dialog open={st.checkout} onOpenChange={st.setCheckout}>
         <DialogContent className="max-w-[520px] rounded-[20px] bg-gray-1 p-7">
           <DialogTitle className="text-2xl font-extrabold">Оформление заказа</DialogTitle>
-          <DialogDescription className="text-[15px] text-txt-2">{st.total ? `Сумма ${rub(st.total)}. ` : ''}Оставьте контакты — перезвоним и поможем выбрать пункт выдачи 5Post. Доставка бесплатная.</DialogDescription>
+          <DialogDescription className="text-[15px] text-txt-2">
+            {st.total ? (st.discount ? `Сумма ${rub(st.totalWithDiscount)} (со скидкой ${rub(st.discount)}). ` : `Сумма ${rub(st.total)}. `) : ''}
+            Оставьте контакты — перезвоним и поможем выбрать пункт выдачи 5Post. Доставка бесплатная.
+          </DialogDescription>
+          <PromoBox />
           <LeadForm compact cta="Подтвердить заказ" doneText="Заказ сохранён в личном кабинете, менеджер перезвонит." onSubmit={(c) => st.placeOrder(c)} />
         </DialogContent>
       </Dialog>
     </>
+  )
+}
+
+function PromoBox() {
+  const st = useStore()
+  const [code, setCode] = useState('')
+  const [msg, setMsg] = useState(null) // { ok, text }
+  if (!st.firstOrderEligible) return null
+  if (st.promo) {
+    return (
+      <div className="mb-4 flex items-center justify-between gap-2 rounded-[10px] bg-violet-soft px-4 py-3 text-[14px] font-semibold text-violet-dark">
+        <span>Промокод {st.promo.code} применён — скидка {st.promo.pct}%</span>
+        <button type="button" onClick={st.clearPromo} className="shrink-0 text-txt-2 underline">Убрать</button>
+      </div>
+    )
+  }
+  return (
+    <div className="mb-4">
+      <div className="flex gap-2">
+        <Input value={code} onChange={(e) => { setCode(e.target.value); setMsg(null) }} placeholder="Промокод с листовки" className="h-11 rounded-[10px] bg-white text-[16px]" />
+        <button type="button" onClick={() => { const r = st.applyPromo(code); setMsg(r.ok ? { ok: true, text: 'Скидка применена!' } : { ok: false, text: r.msg }) }}
+          className="h-11 shrink-0 rounded-[10px] bg-ink px-4 text-sm font-semibold text-white">Применить</button>
+      </div>
+      {msg && <p className={cn('mt-1.5 text-[13px]', msg.ok ? 'text-emerald-600' : 'text-red-600')}>{msg.text}</p>}
+    </div>
   )
 }
 

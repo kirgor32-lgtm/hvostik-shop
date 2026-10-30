@@ -17,6 +17,9 @@ function usePersist(key, initial, clean = (x) => x) {
   return [v, setV]
 }
 
+// Промокод с листовки: -10% на первый заказ (клиентская проверка — для небольшого магазина достаточно)
+export const PROMO = { code: 'ХВОСТИК10', pct: 10 }
+
 const byId = Object.fromEntries(products.map((p) => [p.id, p]))
 // В избранном — только существующие товары, без повторов (раньше там оставались id из старой версии сайта)
 const cleanFav = (f) => (Array.isArray(f) ? [...new Set(f)].filter((id) => byId[id]) : [])
@@ -34,6 +37,8 @@ export function StoreProvider({ children }) {
   const [panel, setPanel] = useState(null) // 'cart' | 'fav' | 'profile' | 'menu'
   const [checkout, setCheckout] = useState(false)
   const [compare, setCompare] = useState([]) // id товаров для сравнения состава, в рамках сессии
+  const [promo, setPromo] = useState(null) // применённый промокод в этой сессии, например PROMO
+  const [promoRedeemed, setPromoRedeemed] = usePersist('hv-promo-redeemed', false) // промокод на первый заказ уже использован
 
   const api = useMemo(() => {
     const key = (id, w) => `${id}|${w}`
@@ -48,15 +53,29 @@ export function StoreProvider({ children }) {
     const total = items.reduce((s, i) => s + i.qty * i.price, 0)
     const toggleFav = (id) => setFav((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]))
     const toggleCompare = (id) => setCompare((c) => (c.includes(id) ? c.filter((x) => x !== id) : c.length >= 4 ? c : [...c, id]))
+    const firstOrderEligible = orders.length === 0 && !promoRedeemed
+    const applyPromo = (raw) => {
+      const code = (raw || '').trim().toUpperCase()
+      if (!code) return { ok: false, msg: 'Введите промокод' }
+      if (!firstOrderEligible) return { ok: false, msg: 'Промокод действует только на первый заказ' }
+      if (code !== PROMO.code) return { ok: false, msg: 'Такого промокода нет — проверьте написание' }
+      setPromo(PROMO)
+      return { ok: true }
+    }
+    const clearPromo = () => setPromo(null)
+    const discount = promo && firstOrderEligible ? Math.round(total * promo.pct / 100) : 0
+    const totalWithDiscount = total - discount
     const placeOrder = (contact) => {
-      const o = { n: String(Date.now()).slice(-6), date: new Date().toLocaleDateString('ru-RU'), items, total, contact }
+      const o = { n: String(Date.now()).slice(-6), date: new Date().toLocaleDateString('ru-RU'), items, total: totalWithDiscount, promo: discount ? PROMO.code : null, contact }
       setOrders((s) => [o, ...s])
       if (!user) setUser({ name: contact.name, phone: contact.phone })
+      if (discount) setPromoRedeemed(true)
       setItems([])
+      setPromo(null)
       return o
     }
-    return { items, add, setQty, qtyOf, count, total, fav, favCount: fav.length, toggleFav, compare, toggleCompare, clearCompare: () => setCompare([]), user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout }
-  }, [items, fav, compare, user, orders, panel, checkout])
+    return { items, add, setQty, qtyOf, count, total, fav, favCount: fav.length, toggleFav, compare, toggleCompare, clearCompare: () => setCompare([]), user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout, promo, applyPromo, clearPromo, discount, totalWithDiscount, firstOrderEligible }
+  }, [items, fav, compare, user, orders, panel, checkout, promo, promoRedeemed])
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>
 }
