@@ -395,10 +395,10 @@ function Pills({ label, items, value, onChange, small }) {
 function ProductCard({ p }) {
   const st = useStore()
   const [vi, setVi] = useState(p.weights.length > 2 ? 1 : 0)
-  const [showComp, setShowComp] = useState(false)
   const v = p.weights[vi]
   const qty = st.qtyOf(p.id, v.w)
   const faved = st.fav.includes(p.id)
+  const compared = st.compare.includes(p.id)
   return (
     <article className="flex flex-col rounded-[16px] bg-white p-3 shadow-card sm:p-4">
       <div className={cn('relative flex h-[190px] items-center justify-center overflow-hidden rounded-[12px] sm:h-[250px]', p.bg)}>
@@ -416,24 +416,9 @@ function ProductCard({ p }) {
         <Link to={productPath(p)} className="hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
       </h3>
       {p.composition && (
-        <div className="mt-1 text-xs text-txt-2">
-          {showComp ? (
-            <>
-              <p className="leading-relaxed">{p.composition.full}</p>
-              <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
-                <span>Белки {p.composition.analysis.protein}</span>
-                <span>Жиры {p.composition.analysis.fat}</span>
-                <span>Клетчатка {p.composition.analysis.fiber}</span>
-                <span>Зола {p.composition.analysis.ash}</span>
-              </p>
-              <button type="button" onClick={() => setShowComp(false)} className="mt-1 font-semibold text-violet-dark">Свернуть</button>
-            </>
-          ) : (
-            <>
-              <span className="line-clamp-1 inline">{p.composition.top}</span>{' '}
-              <button type="button" onClick={() => setShowComp(true)} className="font-semibold text-violet-dark">показать полностью</button>
-            </>
-          )}
+        <div className="mt-1 flex items-start justify-between gap-2">
+          <p className="line-clamp-1 text-xs text-txt-2">{p.composition.top}</p>
+          <button type="button" onClick={() => st.toggleCompare(p.id)} aria-pressed={compared} className={cn('flex-none rounded-[6px] px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap', compared ? 'bg-violet-dark text-white' : 'bg-gray-1 text-txt-2 hover:bg-gray-2')}>{compared ? '✓ в сравнении' : 'сравнить состав'}</button>
         </div>
       )}
       <div className="mt-auto flex gap-1.5 pt-3" role="group" aria-label="Фасовка">
@@ -629,7 +614,7 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с �
                 <div>
                   <h3 className="text-2xl font-extrabold">{cap(t.label)}</h3>
                   <p className="mt-3 text-[17px] leading-relaxed text-txt-2">{t.text}</p>
-                  <p className="mt-4 text-[15px]">Заполните форму или напишите в мессенджер — <b>ответим в течение дня</b>.</p>
+                  <p className="mt-4 text-[15px]">Заполните форму или напишите нам — <b>ответим в течение дня</b>.</p>
                   <MessengerButtons className="mt-5" />
                   <div className="mt-6 space-y-2 text-[15px]">
                     <a href={contacts.phoneHref} className="flex items-center gap-2 font-semibold"><Phone className="size-4" />{contacts.phone}</a>
@@ -1039,7 +1024,7 @@ function Panels({ nav }) {
             <div className="border-t border-gray-2 p-5">
               <div className="mb-3 flex items-center gap-2 rounded-[10px] bg-violet-soft px-3 py-2 text-sm"><Truck className="size-4 text-violet-dark" />Бесплатная доставка до пункта 5Post</div>
               <div className="mb-4 flex justify-between text-lg"><span>Итого</span><b>{rub(st.total)}</b></div>
-              <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>Побаловать питомца</Button>
+              <Button onClick={() => { close(); st.setCheckout(true) }} className={cn(inkBtn, 'h-12 w-full text-base')}>Перейти к оформлению</Button>
             </div>
           )}
         </SheetContent>
@@ -1076,6 +1061,59 @@ function Panels({ nav }) {
           <div className="flex-1 overflow-y-auto p-5">{st.user ? <Profile nav={nav} /> : <Login />}</div>
         </SheetContent>
       </Sheet>
+
+      {/* сравнение составов — выбрали на карточках в каталоге, смотрим рядом без переходов */}
+      <Sheet open={st.panel === 'compare'} onOpenChange={(o) => !o && close()}>
+        <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-[760px]">
+          {head('Сравнение состава', `${st.compare.length} из 4 кормов`)}
+          <div className="flex-1 overflow-y-auto p-5">
+            {!st.compare.length ? (
+              <Empty icon={Scale} text="отметьте «сравнить состав» на карточках кормов в каталоге" action={toCatalog} />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {st.compare.map((id) => {
+                  const p = byId(id)
+                  if (!p) return null
+                  return (
+                    <div key={id} className="relative rounded-[14px] bg-gray-1 p-4">
+                      <button onClick={() => st.toggleCompare(id)} aria-label="Убрать из сравнения" className="absolute right-3 top-3 text-txt-2 hover:text-ink"><X className="size-4" /></button>
+                      <div className="flex items-center gap-2 pr-6">
+                        <div className={cn('flex size-12 flex-none items-center justify-center rounded-[8px] p-1', p.bg)}><img src={img(p.id)} alt="" className="max-h-full w-auto" /></div>
+                        <Link to={productPath(p)} onClick={close} className="text-sm font-semibold leading-snug hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
+                      </div>
+                      {p.composition ? (
+                        <>
+                          <p className="mt-3 text-sm leading-relaxed">{p.composition.full}</p>
+                          <dl className="mt-3 grid grid-cols-2 gap-1.5 text-xs text-txt-2">
+                            <div className="flex justify-between"><dt>Белки</dt><dd className="font-semibold text-ink">{p.composition.analysis.protein}</dd></div>
+                            <div className="flex justify-between"><dt>Жиры</dt><dd className="font-semibold text-ink">{p.composition.analysis.fat}</dd></div>
+                            <div className="flex justify-between"><dt>Клетчатка</dt><dd className="font-semibold text-ink">{p.composition.analysis.fiber}</dd></div>
+                            <div className="flex justify-between"><dt>Зола</dt><dd className="font-semibold text-ink">{p.composition.analysis.ash}</dd></div>
+                          </dl>
+                        </>
+                      ) : (
+                        <p className="mt-3 text-sm text-txt-2">Полный состав запросили у производителя, скоро добавим.</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+          {!!st.compare.length && (
+            <div className="border-t border-gray-2 p-5">
+              <button onClick={st.clearCompare} className="text-sm text-txt-2 underline hover:text-ink">Очистить сравнение</button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* плавающая плашка сравнения — видна, пока выбран хотя бы 1 корм, не мешает просмотру каталога */}
+      {!!st.compare.length && st.panel !== 'compare' && (
+        <button onClick={() => st.setPanel('compare')} className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-center gap-2 bg-ink px-5 py-4 text-sm font-semibold text-white shadow-[0_-4px_16px_rgba(0,0,0,0.15)] sm:bottom-5 sm:left-1/2 sm:inset-x-auto sm:w-auto sm:-translate-x-1/2 sm:rounded-full sm:px-6">
+          <Scale className="size-4" /> Сравнить состав ({st.compare.length})
+        </button>
+      )}
 
       {/* мобильное меню (бургер) */}
       <Sheet open={st.panel === 'menu'} onOpenChange={(o) => !o && close()}>

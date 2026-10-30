@@ -33,6 +33,7 @@ export function StoreProvider({ children }) {
   const [orders, setOrders] = usePersist('hv-orders', [])
   const [panel, setPanel] = useState(null) // 'cart' | 'fav' | 'profile' | 'menu'
   const [checkout, setCheckout] = useState(false)
+  const [compare, setCompare] = useState([]) // id товаров для сравнения состава, в рамках сессии
 
   const api = useMemo(() => {
     const key = (id, w) => `${id}|${w}`
@@ -46,6 +47,7 @@ export function StoreProvider({ children }) {
     const count = items.reduce((s, i) => s + i.qty, 0)
     const total = items.reduce((s, i) => s + i.qty * i.price, 0)
     const toggleFav = (id) => setFav((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]))
+    const toggleCompare = (id) => setCompare((c) => (c.includes(id) ? c.filter((x) => x !== id) : c.length >= 4 ? c : [...c, id]))
     const placeOrder = (contact) => {
       const o = { n: String(Date.now()).slice(-6), date: new Date().toLocaleDateString('ru-RU'), items, total, contact }
       setOrders((s) => [o, ...s])
@@ -53,8 +55,8 @@ export function StoreProvider({ children }) {
       setItems([])
       return o
     }
-    return { items, add, setQty, qtyOf, count, total, fav, favCount: fav.length, toggleFav, user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout }
-  }, [items, fav, user, orders, panel, checkout])
+    return { items, add, setQty, qtyOf, count, total, fav, favCount: fav.length, toggleFav, compare, toggleCompare, clearCompare: () => setCompare([]), user, setUser, orders, placeOrder, panel, setPanel, checkout, setCheckout }
+  }, [items, fav, compare, user, orders, panel, checkout])
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>
 }
