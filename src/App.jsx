@@ -282,23 +282,23 @@ function Home({ filter, setFilter, nav, topic, setTopic }) {
 function Hero({ nav }) {
   return (
     <section className="wrap pt-5">
-      <div className="relative flex items-center gap-2 overflow-hidden rounded-[20px] bg-gradient-to-r from-[#fdeef1] via-[#fbe2e7] to-[#f6d2da] px-4 py-5 sm:block sm:px-6 sm:py-10 md:px-14 md:py-14">
-        <div className="relative z-10 min-w-0 flex-1 sm:max-w-[560px]">
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 overflow-hidden rounded-[20px] bg-gradient-to-r from-[#fdeef1] via-[#fbe2e7] to-[#f6d2da] px-4 py-5 sm:block sm:px-6 sm:py-10 md:px-14 md:py-14">
+        <div className="contents sm:relative sm:z-10 sm:block sm:max-w-[380px] xl:max-w-[560px]">
           <span className="hidden rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink sm:inline-block">Бесплатная доставка по Санкт-Петербургу</span>
-          <h1 className="text-[21px] font-extrabold leading-[1.15] tracking-tight sm:mt-5 sm:text-[34px] sm:leading-[1.1] md:text-[54px]">Корма «Хвостик» для кошек и собак в Санкт-Петербурге</h1>
-          <p className="mt-1.5 text-[13px] text-txt-2 sm:hidden">8 рецептов · от {minAll} ₽ · бесплатная доставка</p>
-          <p className="mt-5 hidden max-w-[470px] text-lg leading-snug sm:block md:text-xl">
+          <h1 className="col-span-2 text-balance text-[22px] font-extrabold leading-[1.15] tracking-tight [overflow-wrap:anywhere] sm:mt-5 sm:text-[32px] sm:leading-[1.1] xl:text-[54px]">Корма «Хвостик» для кошек и собак в Санкт-Петербурге</h1>
+          <p className="col-start-1 mt-2 self-end text-[13px] leading-snug text-txt-2 sm:hidden">8 рецептов · от {minAll} ₽ · бесплатная доставка</p>
+          <p className="mt-5 hidden max-w-[470px] text-lg leading-snug sm:block xl:text-xl">
             Хвостик.МЯУ и Хвостик.ГАВ — восемь сухих рецептов: для взрослых, котят, щенков, стерилизованных кошек и мелких пород. От {minAll} ₽.
           </p>
-          <div className="mt-3 flex flex-col gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+          <div className="col-start-1 mt-3 flex min-w-0 flex-col gap-2 self-start sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
             <Link to={kinds.cat.path} className={cn(inkBtn, 'flex h-10 items-center justify-center px-3 text-[14px] sm:h-[52px] sm:px-7 sm:text-base')}>Корм для кошек</Link>
             <Link to={kinds.dog.path} className="flex h-10 items-center justify-center rounded-[10px] bg-white px-3 text-[14px] font-semibold hover:bg-gray-1 sm:h-[52px] sm:px-7 sm:text-base">Корм для собак</Link>
           </div>
         </div>
-        <div className="pointer-events-none flex shrink-0 items-center justify-center sm:absolute sm:inset-x-0 sm:bottom-0 sm:top-0 sm:items-end sm:justify-end sm:pb-6 sm:pr-12 md:pr-12">
-          <img src={img('myau-steril')} {...IMG} alt="Упаковка корма Хвостик.МЯУ для стерилизованных кошек" fetchPriority="high" className="relative z-10 h-auto w-[95px] -rotate-6 drop-shadow-lg sm:w-[120px] md:w-[190px]" />
-          <img src={img('gav-small')} {...IMG} alt="Упаковка корма Хвостик.ГАВ для собак мелких пород" fetchPriority="high" className="-ml-3 h-auto w-[95px] rotate-3 drop-shadow-lg sm:-ml-4 sm:w-[120px] md:w-[190px]" />
-          <img src={img('myau-kitten')} {...IMG} alt="" className="-ml-3 hidden h-auto w-[80px] rotate-12 drop-shadow-lg sm:block sm:-ml-6 sm:w-[160px] lg:block" />
+        <div className="pointer-events-none col-start-2 row-span-2 row-start-2 mt-2 flex shrink-0 sm:hidden md:flex items-center justify-center sm:absolute sm:mt-0 sm:inset-x-0 sm:bottom-0 sm:top-0 sm:items-end sm:justify-end sm:pb-6 sm:pr-12 md:pr-12">
+          <img src={img('myau-steril')} {...IMG} alt="Упаковка корма Хвостик.МЯУ для стерилизованных кошек" fetchPriority="high" className="relative z-10 h-auto w-[68px] -rotate-6 drop-shadow-lg sm:w-[120px] xl:w-[190px]" />
+          <img src={img('gav-small')} {...IMG} alt="Упаковка корма Хвостик.ГАВ для собак мелких пород" fetchPriority="high" className="-ml-3 h-auto w-[68px] rotate-3 drop-shadow-lg sm:-ml-4 sm:w-[120px] xl:w-[190px]" />
+          <img src={img('myau-kitten')} {...IMG} alt="" className="-ml-6 hidden h-auto w-[160px] rotate-12 drop-shadow-lg xl:block" />
         </div>
       </div>
       <div className="no-scrollbar mt-3 grid grid-flow-col gap-3 overflow-x-auto md:grid-cols-4">
