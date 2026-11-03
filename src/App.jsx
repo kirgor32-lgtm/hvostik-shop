@@ -616,8 +616,10 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с �
               <TabsTrigger key={t.id} value={t.id} className="h-10 flex-none rounded-full border-0 bg-white px-5 text-[15px] text-ink shadow-none data-[state=active]:bg-violet-dark data-[state=active]:text-white">{t.label}</TabsTrigger>
             ))}
           </TabsList>
+          {/* все вкладки лежат друг на друге: блок всегда высотой с самую большую, при переключении ничего не прыгает */}
+          <div className="grid">
           {contactTopics.map((t) => (
-            <TabsContent key={t.id} value={t.id}>
+            <TabsContent key={t.id} value={t.id} forceMount inert={t.id !== topic} className={cn('[grid-area:1/1] mt-0', t.id !== topic && 'invisible')}>
               <div className="grid gap-8 rounded-[20px] bg-white/60 p-6 md:grid-cols-[1fr_1.3fr] md:p-10">
                 <div>
                   <h3 className="text-2xl font-extrabold">{cap(t.label)}</h3>
@@ -633,6 +635,7 @@ function Contacts({ topic, setTopic, as = 'h2', title = 'Связаться с �
               </div>
             </TabsContent>
           ))}
+          </div>
         </Tabs>
       </div>
     </section>
@@ -933,6 +936,8 @@ function Footer({ nav }) {
 
 /* ---------------- плавающие мессенджеры ---------------- */
 function Messengers() {
+  const st = useStore()
+  const lifted = !!st.compare.length && st.panel !== 'compare' // на телефоне внизу плашка «Сравнить состав» — встаём над ней
   const [open, setOpen] = useState(false)
   const box = useRef(null)
   useEffect(() => {
@@ -945,7 +950,7 @@ function Messengers() {
   }, [open])
   const item = 'flex w-full items-center gap-2 rounded-full bg-white py-2 pl-2 pr-4 text-sm font-semibold shadow-[0_6px_24px_rgba(46,44,56,.2)] hover:bg-gray-1'
   return (
-    <div ref={box} className="fixed bottom-5 right-5 z-30 flex flex-col items-end gap-2">
+    <div ref={box} className={cn('fixed bottom-5 right-5 z-30 flex flex-col items-end gap-2 transition-[bottom]', lifted && 'max-sm:bottom-[76px]')}>
       {open && (
         <div className="grid w-[156px] gap-2">
           <a href={contacts.telegram} target="_blank" rel="noopener nofollow" onClick={() => setOpen(false)} className={item}><TgIcon className="size-8" />Telegram</a>
