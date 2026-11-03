@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url'
 const dist = path.resolve('dist')
 const SITE = 'https://kirgor32-lgtm.github.io/hvostik-shop'
 const tpl = fs.readFileSync(path.join(dist, 'index.html'), 'utf8')
-const { render, routes } = await import(pathToFileURL(path.resolve('dist-ssr/entry-server.js')).href)
+const { render, routes, products } = await import(pathToFileURL(path.resolve('dist-ssr/entry-server.js')).href)
 
 const page = (p) => {
   const r = render(p)
@@ -39,5 +39,7 @@ fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify({
   ],
 }, null, 2))
 fs.writeFileSync(path.join(dist, '.nojekyll'), '')
+// Прайс для CRM: по нему она проверяет цены в заказах (браузеру покупателя не доверяет)
+fs.writeFileSync(path.join(dist, 'prices.json'), JSON.stringify(products.flatMap((p) => p.weights.map((w) => ({ id: p.id, w: w.w, price: w.price, name: `${p.line} — ${p.name}` }))), null, 1))
 fs.rmSync(path.resolve('dist-ssr'), { recursive: true, force: true })
 console.log(`prerendered ${list.length} pages + 404, sitemap ${indexable.length} urls`)

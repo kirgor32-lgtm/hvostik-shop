@@ -7,3 +7,4 @@ export function render(path) {
   return { html: renderToString(<App path={path} />), head: headHtml(head(route)), type: route.type }
 }
 export { routes }
+export { products } from './data.js'

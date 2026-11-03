@@ -36,7 +36,10 @@ async function deliver(kind, payload) {
   return kind === 'order' ? crm.order(payload) : crm.lead(payload)
 }
 async function sendOrQueue(kind, payload) {
-  try { await deliver(kind, payload) } catch { writePending([...readPending(), { kind, payload }]) }
+  try { await deliver(kind, payload) } catch (e) {
+    // повторяем только если CRM была недоступна; заказ, который CRM отклонила (4xx), повторять бессмысленно
+    if (!e?.status || e.status >= 500 || e.status === 429) writePending([...readPending(), { kind, payload }])
+  }
 }
 
 // Согласие на аналитические cookie: баннер сохраняет { v: 'all' | 'necessary' } в hv-cookies
