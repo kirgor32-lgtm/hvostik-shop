@@ -153,3 +153,8 @@ html { scroll-behavior: smooth; }
 body { -webkit-font-smoothing: antialiased; }
 .wrap { width: 100%; max-width: 1320px; margin-inline: auto; padding-inline: 20px; }
 .no-scrollbar { scrollbar-width: none; } .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Steady: высота = больший из двух текстов */
+.steady { display: grid; }
+.steady > span, .steady::after { grid-area: 1 / 1; }
+.steady::after { content: attr(data-other); visibility: hidden; pointer-events: none; }

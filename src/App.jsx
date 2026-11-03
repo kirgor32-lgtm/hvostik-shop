@@ -675,18 +675,25 @@ function SeoText() {
 }
 
 /* ---------------- категория ---------------- */
+/* Блок занимает высоту большего из двух текстов (кошки/собаки), чтобы при переключении страница не прыгала.
+   Второй текст — только в CSS (::after, невидимый), его не читают ни поисковики, ни экранные дикторы. */
+function Steady({ as: Tag = 'span', className, text, other }) {
+  return <Tag className={cn('steady', className)} data-other={other}><span>{text}</span></Tag>
+}
+
 function KindPage({ kind }) {
   const k = kinds[kind]
+  const other = kinds[kind === 'cat' ? 'dog' : 'cat'] || k
   const [filter, setFilter] = useState(ALL)
   useEffect(() => setFilter(ALL), [kind])
   return (
     <>
       <Crumbs items={[[k.menu, k.path]]} />
       <div className="wrap pb-8 pt-4">
-        <h1 className="text-[30px] font-extrabold leading-tight tracking-tight md:text-[44px]">{k.h1}</h1>
-        <p className="mt-3 max-w-[760px] text-[17px] text-txt-2">{k.intro}</p>
+        <Steady as="h1" className="text-[30px] font-extrabold leading-tight tracking-tight md:text-[44px]" text={k.h1} other={other.h1} />
+        <Steady as="p" className="mt-3 max-w-[760px] text-[17px] text-txt-2" text={k.intro} other={other.intro} />
       </div>
-      <Catalog filter={filter} setFilter={setFilter} fixedKind={kind} title={`Все рецепты ${kinds[kind].h1.split(' ').pop()}`} />
+      <Catalog filter={filter} setFilter={setFilter} fixedKind={kind} title={<Steady text={`Все рецепты ${k.h1.split(' ').pop()}`} other={`Все рецепты ${other.h1.split(' ').pop()}`} />} />
       <section className="wrap py-14">
         <h2 className="text-2xl font-extrabold">Другие корма</h2>
         <Link to={kinds[kind === 'cat' ? 'dog' : 'cat'].path} className="mt-3 inline-flex items-center gap-1 font-semibold text-violet-dark">
