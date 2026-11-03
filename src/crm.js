@@ -1,6 +1,8 @@
 // Связь сайта с CRM: заказы, заявки и события для аналитики.
 // Пока api пустой — ничего не отправляется, сайт работает как раньше (демо).
 // Когда CRM будет на сервере: впишите её адрес и ключ сайта из «CRM → Настройки → Марки и сайты».
+import { contactTopics } from './data.js'
+
 export const crmConfig = {
   api: import.meta.env.VITE_CRM_API || '', // например 'https://crm.hvostik.ru'
   key: import.meta.env.VITE_CRM_KEY || '', // ключ сайта вида pk_...
@@ -84,5 +86,6 @@ export function sendOrder(o) {
 
 export function sendLead(l) {
   if (!crmEnabled) return
-  sendOrQueue('lead', { name: l.name, phone: l.phone, topic: l.topic || '', msg: l.msg || '' })
+  const topic = contactTopics.find((t) => t.id === l.topic)?.label || l.topic || '' // в CRM — «Подобрать корм», а не «pick»
+  sendOrQueue('lead', { name: l.name, phone: l.phone, topic, msg: l.msg || '' })
 }

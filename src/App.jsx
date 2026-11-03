@@ -101,9 +101,9 @@ function MessengerButtons({ className, stack }) {
 /* ---------------- логотип: тот же значок, что и иконка вкладки ---------------- */
 function Logo({ light, onClick }) {
   return (
-    <Link to="" onClick={onClick} className="flex shrink-0 items-center gap-2.5" aria-label="Хвостик — на главную">
-      <img src={`${BASE}${light ? 'logo-light.svg' : 'favicon.svg'}`} alt="" width="44" height="44" className="size-10 sm:size-11" />
-      <span className={cn('text-[22px] font-extrabold leading-none tracking-tight', light && 'text-white')}>Хвостик</span>
+    <Link to="" onClick={onClick} className="flex shrink-0 items-center gap-1.5 min-[360px]:gap-2.5" aria-label="Хвостик — на главную">
+      <img src={`${BASE}${light ? 'logo-light.svg' : 'favicon.svg'}`} alt="" width="44" height="44" className="size-8 min-[360px]:size-10 sm:size-11" />
+      <span className={cn('text-[19px] font-extrabold leading-none tracking-tight min-[360px]:text-[22px]', light && 'text-white')}>Хвостик</span>
     </Link>
   )
 }
@@ -560,14 +560,17 @@ function LeadForm({ topic, compact, onSubmit, cta = 'Отправить', doneTe
   const [f, setF] = useState({ name: st.user?.name || '', phone: st.user?.phone || '', msg: '', ok: false })
   const [err, setErr] = useState({})
   const [state, setState] = useState('form')
+  const sending = useRef(false) // защита от двойного нажатия: второй заказ не уйдёт
   const submit = (e) => {
     e.preventDefault()
+    if (sending.current) return
     const er = {}
     if (f.name.trim().length < 2) er.name = 'Введите имя'
     if (f.phone.replace(/\D/g, '').length !== 11) er.phone = 'Введите телефон полностью'
     if (!f.ok) er.ok = 'нужно согласие'
     setErr(er)
     if (Object.keys(er).length) return
+    sending.current = true
     setState('send')
     setTimeout(() => {
       if (onSubmit) onSubmit({ name: f.name.trim(), phone: f.phone })
@@ -586,7 +589,7 @@ function LeadForm({ topic, compact, onSubmit, cta = 'Отправить', doneTe
   return (
     <form onSubmit={submit} noValidate className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field err={err.name} label="Имя"><Input autoComplete="name" placeholder="Имя" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} aria-invalid={!!err.name} className="h-12 rounded-[10px] bg-white text-[16px]" /></Field>
+        <Field err={err.name} label="Имя"><Input autoComplete="name" placeholder="Имя" maxLength={60} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} aria-invalid={!!err.name} className="h-12 rounded-[10px] bg-white text-[16px]" /></Field>
         <Field err={err.phone} label="Телефон"><Input type="tel" autoComplete="tel" placeholder="Телефон" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} aria-invalid={!!err.phone} className="h-12 rounded-[10px] bg-white text-[16px]" /></Field>
       </div>
       {!compact && <Textarea aria-label="Сообщение" placeholder={topic === 'order' ? 'Номер заказа и что случилось' : 'Сообщение (необязательно)'} value={f.msg} onChange={(e) => setF({ ...f, msg: e.target.value })} className="min-h-24 rounded-[10px] bg-white text-[16px]" />}
@@ -900,7 +903,7 @@ function Footer({ nav }) {
         ))}
         <div>
           <div className="mb-3 font-semibold">Поговорим про питомцев</div>
-          <a href={contacts.phoneHref} className="whitespace-nowrap text-lg font-bold sm:text-2xl">{contacts.phone}</a>
+          <a href={contacts.phoneHref} className="whitespace-nowrap text-[14px] font-bold min-[380px]:text-lg sm:text-2xl">{contacts.phone}</a>
           <p className="mt-1 text-sm text-white/70">{contacts.hours}</p>
           <div className="mt-4 flex gap-2">
             <a href={contacts.telegram} target="_blank" rel="noopener nofollow" aria-label="Telegram" className="rounded-[10px] bg-white/10 p-2.5 hover:bg-white/20"><TgIcon className="size-6" /></a>
