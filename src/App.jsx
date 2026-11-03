@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, Fragment } from 'react'
 import {
   Search, ShoppingBag, Heart, User, Menu, X, Minus, Plus, ChevronRight, Phone, Clock, LogOut, Package,
   Drumstick, Scale, HeartPulse, ShieldCheck, Factory, BadgeCheck, Check, Trash2, Loader2, Send, Truck, Sparkles, PawPrint, Cookie,
@@ -999,6 +999,43 @@ function CookieBanner() {
 }
 
 /* ---------------- боковые панели ---------------- */
+/* Сравнение: корма — столбцами, показатели — строками. Цифры видно сразу рядом, длинный состав — по кнопке. */
+const compareRows = [['Белки', 'protein'], ['Жиры', 'fat'], ['Клетчатка', 'fiber'], ['Зола', 'ash'], ['Влажность', 'moisture']]
+function CompareTable({ ids, onRemove, onOpen }) {
+  const [full, setFull] = useState(false)
+  const items = ids.map(byId).filter(Boolean)
+  const n = items.length
+  // 1–2 корма помещаются на любом телефоне; 3–4 — листаются вбок
+  const cols = { gridTemplateColumns: `repeat(${n}, minmax(${n > 2 ? 132 : 0}px, 1fr))` }
+  const Label = ({ children }) => <div className="col-span-full mt-2 border-t border-gray-2 pt-1.5 text-xs text-txt-2"><span className="sticky left-0">{children}</span></div>
+  const val = (p, k) => p.composition?.analysis?.[k] || '—'
+  return (
+    <div className="-mx-5 overflow-x-auto px-5 pb-1">
+      <div className="grid gap-x-3 text-sm [overflow-wrap:anywhere]" style={cols}>
+        {items.map((p) => (
+          <div key={p.id} className="relative flex min-w-0 flex-col items-start gap-2 rounded-[14px] bg-gray-1 p-3">
+            <button onClick={() => onRemove(p.id)} aria-label="Убрать из сравнения" className="absolute right-2 top-2 text-txt-2 hover:text-ink"><X className="size-4" /></button>
+            <div className={cn('flex size-10 flex-none items-center justify-center rounded-[8px] p-1', p.bg)}><img src={img(p.id)} alt="" className="max-h-full w-auto" /></div>
+            <Link to={productPath(p)} onClick={onOpen} className="min-w-0 leading-snug hover:text-violet-dark"><b>{p.line}</b><br />{p.ageLabel}, {p.taste}</Link>
+          </div>
+        ))}
+        <Label>Главное в составе</Label>
+        {items.map((p) => <div key={p.id} className="min-w-0 leading-snug">{p.composition?.top || '—'}</div>)}
+        {compareRows.map(([t, k]) => (
+          <Fragment key={k}>
+            <Label>{t}</Label>
+            {items.map((p) => <div key={p.id} className="font-bold">{val(p, k)}</div>)}
+          </Fragment>
+        ))}
+        <div className="col-span-full mt-2 border-t border-gray-2 pt-2">
+          <button onClick={() => setFull(!full)} aria-expanded={full} className="sticky left-0 text-sm font-semibold underline hover:text-violet-dark">{full ? 'Скрыть полный состав' : 'Показать полный состав'}</button>
+        </div>
+        {full && items.map((p) => <p key={p.id} className="mt-2 min-w-0 text-xs leading-relaxed">{p.composition?.full || 'Полный состав запросили у производителя, скоро добавим.'}</p>)}
+      </div>
+    </div>
+  )
+}
+
 function Panels({ nav }) {
   const st = useStore()
   const close = () => st.setPanel(null)
@@ -1083,40 +1120,13 @@ function Panels({ nav }) {
 
       {/* сравнение составов — выбрали на карточках в каталоге, смотрим рядом без переходов */}
       <Sheet open={st.panel === 'compare'} onOpenChange={(o) => !o && close()}>
-        <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-[760px]">
+        <SheetContent className="flex w-full flex-col gap-0 p-0 data-[side=right]:w-full sm:max-w-[760px] data-[side=right]:sm:max-w-[760px]">
           {head('Сравнение состава', `${st.compare.length} из 4 кормов`)}
           <div className="flex-1 overflow-y-auto p-5">
             {!st.compare.length ? (
               <Empty icon={Scale} text="отметьте «сравнить состав» на карточках кормов в каталоге" action={toCatalog} />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {st.compare.map((id) => {
-                  const p = byId(id)
-                  if (!p) return null
-                  return (
-                    <div key={id} className="relative rounded-[14px] bg-gray-1 p-4">
-                      <button onClick={() => st.toggleCompare(id)} aria-label="Убрать из сравнения" className="absolute right-3 top-3 text-txt-2 hover:text-ink"><X className="size-4" /></button>
-                      <div className="flex items-center gap-2 pr-6">
-                        <div className={cn('flex size-12 flex-none items-center justify-center rounded-[8px] p-1', p.bg)}><img src={img(p.id)} alt="" className="max-h-full w-auto" /></div>
-                        <Link to={productPath(p)} onClick={close} className="text-sm font-semibold leading-snug hover:text-violet-dark"><b>{p.line}</b> {p.name}</Link>
-                      </div>
-                      {p.composition ? (
-                        <>
-                          <p className="mt-3 text-sm leading-relaxed">{p.composition.full}</p>
-                          <dl className="mt-3 grid grid-cols-2 gap-1.5 text-xs text-txt-2">
-                            <div className="flex justify-between"><dt>Белки</dt><dd className="font-semibold text-ink">{p.composition.analysis.protein}</dd></div>
-                            <div className="flex justify-between"><dt>Жиры</dt><dd className="font-semibold text-ink">{p.composition.analysis.fat}</dd></div>
-                            <div className="flex justify-between"><dt>Клетчатка</dt><dd className="font-semibold text-ink">{p.composition.analysis.fiber}</dd></div>
-                            <div className="flex justify-between"><dt>Зола</dt><dd className="font-semibold text-ink">{p.composition.analysis.ash}</dd></div>
-                          </dl>
-                        </>
-                      ) : (
-                        <p className="mt-3 text-sm text-txt-2">Полный состав запросили у производителя, скоро добавим.</p>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+              <CompareTable ids={st.compare} onRemove={st.toggleCompare} onOpen={close} />
             )}
           </div>
           {!!st.compare.length && (
